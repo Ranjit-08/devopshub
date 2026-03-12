@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DevOpsHub — AI Cloud Platform</title>
+<title>DevOpsHub — Master Cloud & DevOps with AI</title>
+<meta name="description" content="AI-powered DevOps and AWS learning platform. Study 120+ services, take certification tests, earn certificates.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 :root {
@@ -15,7 +16,7 @@
   --green:#34d399; --orange:#fb923c; --red:#f87171; --yellow:#fbbf24;
   --text:#f0f6ff; --text2:#8ba4c7; --text3:#4a6080;
   --border:rgba(56,189,248,0.1); --borderH:rgba(56,189,248,0.28);
-  --font-h:'Syne',sans-serif; --font-b:'Inter',sans-serif; --font-c:'JetBrains Mono',monospace;
+  --font-h:'Plus Jakarta Sans',sans-serif; --font-b:'Inter',sans-serif; --font-c:'JetBrains Mono',monospace;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -452,6 +453,230 @@ nav.scrolled{background:rgba(3,4,13,.97);box-shadow:0 4px 32px rgba(0,0,0,.45)}
   nav{padding:0 12px;gap:2px}
   .nav-tab{padding:6px 10px;font-size:12px}
 }
+
+/* ══════════════════════════════════
+   PROFESSIONAL UI ENHANCEMENTS
+══════════════════════════════════ */
+
+/* Better heading font */
+h1,h2,h3,.auth-logo h1,.nav-brand,.page-title{font-family:'Plus Jakarta Sans',sans-serif!important}
+
+/* Glassmorphism cards upgrade */
+.card,.cs,.lab-step,.lb-card,.cert-card{
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+
+/* Gradient text utility */
+.grad-text{
+  background:linear-gradient(135deg,#38bdf8,#a78bfa,#34d399);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+/* Better nav */
+nav{
+  background:rgba(5,8,18,0.85)!important;
+  backdrop-filter:blur(20px)!important;
+  border-bottom:1px solid rgba(56,189,248,0.1)!important;
+  box-shadow:0 4px 32px rgba(0,0,0,0.4)!important;
+}
+.nav-brand{
+  font-size:18px!important;font-weight:800!important;
+  background:linear-gradient(135deg,#f0f6ff,#38bdf8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.nav-tab{
+  border-radius:10px!important;font-weight:500!important;
+  transition:all .2s!important;letter-spacing:.2px;
+}
+.nav-tab.active{
+  background:linear-gradient(135deg,rgba(14,165,233,.2),rgba(124,58,237,.15))!important;
+  color:#38bdf8!important;border:1px solid rgba(56,189,248,.25)!important;
+  box-shadow:0 2px 12px rgba(56,189,248,.15)!important;
+}
+
+/* Hero section upgrade */
+.hero{padding:72px 24px 56px!important}
+.hero h1{
+  font-size:clamp(36px,6vw,68px)!important;
+  font-weight:800!important;line-height:1.08!important;
+  letter-spacing:-1.5px!important;
+  font-family:'Plus Jakarta Sans',sans-serif!important;
+}
+.hero-sub{
+  font-size:17px!important;line-height:1.75!important;
+  max-width:580px!important;margin:0 auto 36px!important;
+}
+
+/* Mode cards upgrade */
+.mode-card{
+  border-radius:20px!important;
+  background:linear-gradient(145deg,rgba(13,18,36,.9),rgba(8,12,26,.95))!important;
+  border:1px solid rgba(56,189,248,.1)!important;
+  transition:all .3s cubic-bezier(.16,1,.3,1)!important;
+  overflow:hidden;position:relative;
+}
+.mode-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,#0ea5e9,#7c3aed,#22d3ee);
+  opacity:0;transition:opacity .3s;
+}
+.mode-card:hover::before{opacity:1}
+.mode-card:hover{
+  transform:translateY(-6px) scale(1.01)!important;
+  border-color:rgba(56,189,248,.3)!important;
+  box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 40px rgba(56,189,248,.12)!important;
+}
+
+/* Select dropdowns */
+select.form-select,.form-select{
+  appearance:none;
+  background:rgba(255,255,255,.04)!important;
+  border:1px solid rgba(56,189,248,.15)!important;
+  border-radius:12px!important;
+  color:#f0f6ff!important;padding:13px 42px 13px 16px!important;
+  font-size:14px!important;font-family:'Inter',sans-serif!important;
+  transition:all .2s!important;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")!important;
+  background-repeat:no-repeat!important;
+  background-position:right 14px center!important;
+  background-size:16px!important;
+  width:100%!important;
+}
+select.form-select:focus,.form-select:focus{
+  outline:none!important;
+  border-color:#0ea5e9!important;
+  box-shadow:0 0 0 3px rgba(14,165,233,.15)!important;
+  background-color:rgba(14,165,233,.06)!important;
+}
+
+/* Stat cards */
+.stat-card,.tic{
+  border-radius:16px!important;
+  background:linear-gradient(145deg,rgba(13,18,36,.9),rgba(8,12,26,.8))!important;
+  border:1px solid rgba(56,189,248,.1)!important;
+  transition:all .2s!important;
+}
+.stat-card:hover,.tic:hover{
+  border-color:rgba(56,189,248,.25)!important;
+  transform:translateY(-2px)!important;
+}
+
+/* Leaderboard row */
+.lb-row{
+  border-radius:12px!important;
+  transition:all .2s!important;
+  margin-bottom:4px!important;
+}
+.lb-row:hover{background:rgba(56,189,248,.05)!important;}
+
+/* Chip/badge upgrades */
+.chip{
+  font-family:'JetBrains Mono',monospace!important;
+  font-size:11px!important;font-weight:600!important;
+  letter-spacing:.5px!important;text-transform:uppercase!important;
+  border-radius:8px!important;padding:4px 10px!important;
+}
+
+/* Better section labels */
+.section-label{
+  font-size:11px!important;font-weight:700!important;
+  letter-spacing:2px!important;text-transform:uppercase!important;
+  color:var(--blue)!important;margin-bottom:8px!important;
+  font-family:'JetBrains Mono',monospace!important;
+}
+
+/* Quiz options */
+.opt{
+  border-radius:12px!important;
+  transition:all .2s cubic-bezier(.16,1,.3,1)!important;
+  border:1px solid rgba(56,189,248,.1)!important;
+}
+.opt:hover{
+  border-color:rgba(56,189,248,.35)!important;
+  background:rgba(56,189,248,.08)!important;
+  transform:translateX(4px)!important;
+}
+.opt.sel{
+  background:rgba(14,165,233,.15)!important;
+  border-color:#0ea5e9!important;
+  box-shadow:0 0 0 1px rgba(14,165,233,.3)!important;
+}
+
+/* Certificate badge */
+.cert-badge{
+  font-size:13px!important;
+  background:linear-gradient(135deg,rgba(251,191,36,.1),rgba(251,191,36,.05))!important;
+  border:1px solid rgba(251,191,36,.3)!important;
+  border-radius:12px!important;padding:12px 20px!important;
+  font-family:'JetBrains Mono',monospace!important;
+  letter-spacing:.5px!important;color:#fbbf24!important;
+  box-shadow:0 0 20px rgba(251,191,36,.1)!important;
+}
+
+/* Page transition */
+.page-content{animation:pageIn .35s cubic-bezier(.16,1,.3,1) both}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* Better toast */
+.toast{
+  border-radius:14px!important;
+  backdrop-filter:blur(20px)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  box-shadow:0 8px 32px rgba(0,0,0,.4)!important;
+  font-size:14px!important;font-weight:500!important;
+}
+.toast.success{background:rgba(34,197,94,.15)!important;border-color:rgba(34,197,94,.3)!important;}
+.toast.error{background:rgba(248,113,113,.15)!important;border-color:rgba(248,113,113,.3)!important;}
+.toast.info{background:rgba(56,189,248,.15)!important;border-color:rgba(56,189,248,.3)!important;}
+
+/* Score ring */
+.sring svg{filter:drop-shadow(0 0 12px rgba(56,189,248,.4))}
+
+/* Better scrollbar */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#0ea5e9,#7c3aed);border-radius:4px}
+
+/* Input focus glow */
+.form-input:focus{
+  box-shadow:0 0 0 3px rgba(14,165,233,.15),0 0 20px rgba(14,165,233,.08)!important;
+}
+
+/* Button upgrade */
+.btn-primary{
+  background:linear-gradient(135deg,#0ea5e9,#7c3aed)!important;
+  box-shadow:0 4px 24px rgba(14,165,233,.35),0 1px 0 rgba(255,255,255,.12) inset!important;
+  font-family:'Plus Jakarta Sans',sans-serif!important;
+  font-weight:700!important;letter-spacing:.3px!important;
+}
+.btn-primary:hover{
+  box-shadow:0 8px 36px rgba(14,165,233,.5),0 1px 0 rgba(255,255,255,.12) inset!important;
+  transform:translateY(-2px)!important;
+}
+
+/* Auth card glow */
+.auth-card{
+  box-shadow:0 0 100px rgba(56,189,248,.08),0 40px 80px rgba(0,0,0,.6)!important;
+}
+
+/* Code blocks */
+.code-wrap,.cb{border-radius:12px!important}
+pre{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;line-height:1.8!important;}
+
+/* Dashboard cards */
+.dash-card{
+  border-radius:20px!important;
+  background:linear-gradient(145deg,rgba(13,18,36,.95),rgba(8,12,26,.9))!important;
+}
+
+/* Daily challenge banner */
+#dc-banner{
+  background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(251,146,60,.05))!important;
+  border:1px solid rgba(251,191,36,.2)!important;
+  border-radius:16px!important;
+  box-shadow:0 0 30px rgba(251,191,36,.06)!important;
+}
 </style>
 </head>
 <body>
@@ -821,7 +1046,27 @@ async function boot(){
 
 function showGate(){document.getElementById('auth-gate').style.display='flex';document.getElementById('main-app').style.display='none';}
 function enterApp(){document.getElementById('auth-gate').style.display='none';document.getElementById('main-app').style.display='block';loadData();loadDC();showPage('home');}
-async function loadProfile(){const{data}=await sb.from('profiles').select('*').eq('id',me.id).single();if(data){profile=data;document.getElementById('nav-score').textContent=data.skill_score||0;document.getElementById('nav-av').textContent=(data.full_name||data.username||'?')[0].toUpperCase();}}
+async function loadProfile(){
+  try {
+    const{data,error}=await sb.from('profiles').select('*').eq('id',me.id).maybeSingle();
+    if(data){
+      profile=data;
+      document.getElementById('nav-score').textContent=data.skill_score||0;
+      document.getElementById('nav-av').textContent=(data.full_name||data.username||me.email||'?')[0].toUpperCase();
+    } else {
+      // Profile doesn't exist yet — create it now
+      const username = me.email.split('@')[0];
+      const{data:np}=await sb.from('profiles').insert({
+        id:me.id, email:me.email,
+        username: me.user_metadata?.username || username,
+        full_name: me.user_metadata?.full_name || ''
+      }).select().single();
+      if(np){ profile=np; document.getElementById('nav-score').textContent=0; document.getElementById('nav-av').textContent=(np.full_name||np.username||'?')[0].toUpperCase(); }
+      // Also create leaderboard entry
+      await sb.from('leaderboard').insert({user_id:me.id}).onConflict('user_id').ignore();
+    }
+  } catch(e){ console.warn('Profile load error:',e.message); }
+}
 
 /* ── AUTH HELPERS ── */
 function switchTab(t){
@@ -959,7 +1204,7 @@ async function pickTopic(tid){
   out.innerHTML=spinner('learning module','learn');
   out.scrollIntoView({behavior:'smooth',block:'start'});
   const topic=topics.find(t=>t.id===tid);
-  const{data:{session}}=await sb.auth.getSession();
+  const{data:{session}}=await sb.auth.refreshSession();
   try{
     const r=await fetch(`${API}/generate-learning`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},body:JSON.stringify({topic_id:tid,difficulty:learnDiff})});
     const{data,cached}=await r.json();
@@ -1007,7 +1252,7 @@ function buildLabSidebar(){
 async function pickLab(tid){
   const out=document.getElementById('lab-out');
   out.innerHTML=spinner('hands-on lab','lab');out.scrollIntoView({behavior:'smooth'});
-  const{data:{session}}=await sb.auth.getSession();
+  const{data:{session}}=await sb.auth.refreshSession();
   try{
     const r=await fetch(`${API}/generate-lab`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},body:JSON.stringify({topic_id:tid,difficulty:labDiff})});
     const{data}=await r.json();
@@ -1043,7 +1288,8 @@ async function registerTest(){
   const tid=document.getElementById('t-topic').value,diff=document.getElementById('t-diff').value,cnt=parseInt(document.getElementById('t-cnt').value);
   if(!tid){showToast('Please select a topic','error');return;}
   const btn=document.getElementById('btn-reg');btn.textContent='Registering…';btn.disabled=true;
-  const{data:{session}}=await sb.auth.getSession();
+  // Always refresh session to avoid 401
+  const{data:{session}}=await sb.auth.refreshSession();
   try{
     const r=await fetch(`${API}/register-test`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},body:JSON.stringify({topic_id:tid,difficulty:diff,question_count:cnt})});
     const{data,error}=await r.json();if(error)throw new Error(error);
@@ -1061,7 +1307,7 @@ async function startTest(){
   document.getElementById('v-quiz').style.display='block';
   document.getElementById('v-quiz').innerHTML=spinner('quiz questions','quiz');
   await sb.from('test_registrations').update({status:'in_progress',started_at:new Date().toISOString()}).eq('id',testReg.id);
-  const{data:{session}}=await sb.auth.getSession();
+  const{data:{session}}=await sb.auth.refreshSession();
   try{
     const r=await fetch(`${API}/generate-quiz`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},body:JSON.stringify({topic_id:testReg.topic_id,difficulty:testReg.difficulty,question_count:testReg.question_count,registration_id:testReg.id})});
     const{data}=await r.json();if(!data?.questions)throw new Error('Quiz generation failed');
@@ -1116,7 +1362,7 @@ async function doSubmit(auto=false){
   clearInterval(qTimer);document.removeEventListener('visibilitychange',visH);
   const taken=testReg.question_count*60-timeLeft;
   document.getElementById('v-quiz').innerHTML=spinner('your results','results');
-  const{data:{session}}=await sb.auth.getSession();
+  const{data:{session}}=await sb.auth.refreshSession();
   try{
     const r=await fetch(`${API}/submit-test`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},body:JSON.stringify({registration_id:testReg.id,answers,questions:quiz.questions,time_taken_seconds:taken})});
     const{data,error}=await r.json();if(error)throw new Error(error);
