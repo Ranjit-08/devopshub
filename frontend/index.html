@@ -458,7 +458,49 @@ nav.scrolled{background:rgba(3,4,13,.97);box-shadow:0 4px 32px rgba(0,0,0,.45)}
    PROFESSIONAL UI ENHANCEMENTS
 ══════════════════════════════════ */
 
-/* Fix dropdown option colors - critical */
+/* Custom dark dropdowns */
+.cdd{position:relative;width:100%;user-select:none}
+.cdd-sel{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 16px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(56,189,248,.15);border-radius:12px;
+  color:#f0f6ff;font-size:14px;cursor:pointer;
+  transition:all .2s;font-family:'Inter',sans-serif;
+}
+.cdd-sel:hover,.cdd.open .cdd-sel{
+  border-color:#0ea5e9;background:rgba(14,165,233,.06);
+  box-shadow:0 0 0 3px rgba(14,165,233,.12);
+}
+.cdd-sel svg{color:#38bdf8;flex-shrink:0;transition:transform .2s}
+.cdd.open .cdd-sel svg{transform:rotate(180deg)}
+.cdd-list{
+  display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;
+  background:#0d1224;border:1px solid rgba(56,189,248,.2);
+  border-radius:12px;z-index:999;
+  box-shadow:0 16px 48px rgba(0,0,0,.7),0 0 0 1px rgba(56,189,248,.05);
+  max-height:280px;overflow-y:auto;
+}
+.cdd-list::-webkit-scrollbar{width:4px}
+.cdd-list::-webkit-scrollbar-thumb{background:#1a2540;border-radius:4px}
+.cdd.open .cdd-list{display:block;animation:ddIn .15s ease}
+@keyframes ddIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.cdd-group{
+  padding:8px 14px 4px;font-size:10px;font-weight:700;
+  color:#38bdf8;letter-spacing:1.5px;text-transform:uppercase;
+  font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(56,189,248,.08);
+  margin-top:4px;
+}
+.cdd-group:first-child{border-top:none;margin-top:0}
+.cdd-item{
+  padding:11px 16px;color:#e2e8f0;font-size:14px;cursor:pointer;
+  transition:all .15s;display:flex;align-items:center;gap:8px;
+}
+.cdd-item:hover{background:rgba(56,189,248,.1);color:#fff}
+.cdd-item.cdd-active{
+  background:rgba(14,165,233,.15);color:#38bdf8;font-weight:600;
+}
+.cdd-empty{padding:16px;color:#4a6080;font-size:13px;text-align:center}
+
 select option {
   background:#0d1224!important;
   color:#f0f6ff!important;
@@ -900,10 +942,43 @@ pre{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;li
         <div class="glass">
           <div class="card-title">📝 Register for Test</div>
           <div class="card-sub">Choose topic, difficulty and questions. An email confirmation is sent before you begin.</div>
-          <div class="sl-w"><label class="sl-l">Provider</label><select class="sel-in" id="t-prov" onchange="loadTTopics()"><option value="">Select provider...</option></select></div>
-          <div class="sl-w"><label class="sl-l">Topic</label><select class="sel-in" id="t-topic"><option value="">Select provider first...</option></select></div>
-          <div class="sl-w"><label class="sl-l">Difficulty</label><select class="sel-in" id="t-diff"><option value="beginner">🟢 Beginner</option><option value="intermediate" selected>🟡 Intermediate</option><option value="advanced">🔴 Advanced</option></select></div>
-          <div class="sl-w"><label class="sl-l">Questions</label><select class="sel-in" id="t-cnt" onchange="updateTI()"><option value="5">5 questions · 5 min</option><option value="10" selected>10 questions · 10 min</option><option value="15">15 questions · 15 min</option><option value="20">20 questions · 20 min</option></select></div>
+          <div class="sl-w"><label class="sl-l">Provider</label>
+            <div class="cdd" id="dd-prov">
+              <div class="cdd-sel" onclick="toggleDD('dd-prov')"><span id="dd-prov-txt">Select provider...</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+              <div class="cdd-list" id="dd-prov-list"></div>
+            </div>
+            <input type="hidden" id="t-prov">
+          </div>
+          <div class="sl-w"><label class="sl-l">Topic</label>
+            <div class="cdd" id="dd-topic">
+              <div class="cdd-sel" onclick="toggleDD('dd-topic')"><span id="dd-topic-txt">Select provider first...</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+              <div class="cdd-list" id="dd-topic-list"></div>
+            </div>
+            <input type="hidden" id="t-topic">
+          </div>
+          <div class="sl-w"><label class="sl-l">Difficulty</label>
+            <div class="cdd" id="dd-diff">
+              <div class="cdd-sel" onclick="toggleDD('dd-diff')"><span id="dd-diff-txt">🟡 Intermediate</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+              <div class="cdd-list" id="dd-diff-list">
+                <div class="cdd-item" onclick="pickDD('dd-diff','beginner','🟢 Beginner')">🟢 Beginner</div>
+                <div class="cdd-item cdd-active" onclick="pickDD('dd-diff','intermediate','🟡 Intermediate')">🟡 Intermediate</div>
+                <div class="cdd-item" onclick="pickDD('dd-diff','advanced','🔴 Advanced')">🔴 Advanced</div>
+              </div>
+            </div>
+            <input type="hidden" id="t-diff" value="intermediate">
+          </div>
+          <div class="sl-w"><label class="sl-l">Questions</label>
+            <div class="cdd" id="dd-cnt">
+              <div class="cdd-sel" onclick="toggleDD('dd-cnt')"><span id="dd-cnt-txt">10 questions · 10 min</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+              <div class="cdd-list" id="dd-cnt-list">
+                <div class="cdd-item" onclick="pickDD('dd-cnt','5','5 questions · 5 min');updateTI()">5 questions · 5 min</div>
+                <div class="cdd-item cdd-active" onclick="pickDD('dd-cnt','10','10 questions · 10 min');updateTI()">10 questions · 10 min</div>
+                <div class="cdd-item" onclick="pickDD('dd-cnt','15','15 questions · 15 min');updateTI()">15 questions · 15 min</div>
+                <div class="cdd-item" onclick="pickDD('dd-cnt','20','20 questions · 20 min');updateTI()">20 questions · 20 min</div>
+              </div>
+            </div>
+            <input type="hidden" id="t-cnt" value="10">
+          </div>
           <div class="ti-grid">
             <div class="tic"><div class="tic-v" id="ti-q">10</div><div class="tic-l">Questions</div></div>
             <div class="tic"><div class="tic-v" id="ti-t">10m</div><div class="tic-l">Time</div></div>
@@ -1049,8 +1124,8 @@ pre{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;li
      APP LOGIC
 ═══════════════════════════ -->
 <script>
-const SUPABASE_URL     = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY= 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL     = 'https://kfumvggtnpixfbynzdmy.supabase.co';
+const SUPABASE_ANON_KEY= 'sb_publishable_robMWJyeIPBmWUuCBu1Cjw_gRM6twWU';
 const API = `${SUPABASE_URL}/functions/v1`;
 const {createClient}=supabase;
 const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
@@ -1306,15 +1381,53 @@ function renderLab(lab){
 }
 
 /* ── TEST ── */
-function buildTestProvs(){document.getElementById('t-prov').innerHTML='<option value="">Select provider...</option>'+providers.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');}
+/* ── CUSTOM DROPDOWN HELPERS ── */
+function toggleDD(id){
+  const dd=document.getElementById(id);
+  const isOpen=dd.classList.contains('open');
+  document.querySelectorAll('.cdd.open').forEach(d=>d.classList.remove('open'));
+  if(!isOpen)dd.classList.add('open');
+}
+function pickDD(ddId,value,label){
+  document.getElementById(ddId.replace('dd-','t-')).value=value;
+  document.getElementById(ddId+'-txt').textContent=label;
+  document.querySelectorAll('#'+ddId+' .cdd-item').forEach(i=>i.classList.remove('cdd-active'));
+  event.target.classList.add('cdd-active');
+  document.getElementById(ddId).classList.remove('open');
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.cdd'))document.querySelectorAll('.cdd.open').forEach(d=>d.classList.remove('open'));});
+
+function buildTestProvs(){
+  const list=document.getElementById('dd-prov-list');
+  list.innerHTML=providers.map(p=>`<div class="cdd-item" onclick="selectProv('${p.id}','${p.name}')">${p.name}</div>`).join('');
+}
+function selectProv(id,name){
+  document.getElementById('t-prov').value=id;
+  document.getElementById('dd-prov-txt').textContent=name;
+  document.getElementById('dd-prov').classList.remove('open');
+  loadTTopics();
+}
 function loadTTopics(){
-  const pid=document.getElementById('t-prov').value,sel=document.getElementById('t-topic');
-  if(!pid){sel.innerHTML='<option value="">Select provider first...</option>';return;}
+  const pid=document.getElementById('t-prov').value;
+  const list=document.getElementById('dd-topic-list');
+  document.getElementById('t-topic').value='';
+  document.getElementById('dd-topic-txt').textContent='Select topic...';
+  if(!pid){list.innerHTML='<div class="cdd-empty">Select a provider first</div>';return;}
   const cats=categories.filter(c=>c.provider_id===pid);
   const ts=topics.filter(t=>cats.some(c=>c.id===t.category_id));
-  sel.innerHTML='<option value="">Select topic...</option>'+cats.map(cat=>`<optgroup label="${cat.name}">${ts.filter(t=>t.category_id===cat.id).map(t=>`<option value="${t.id}">${t.name}</option>`).join('')}</optgroup>`).join('');
+  if(!ts.length){list.innerHTML='<div class="cdd-empty">No topics found</div>';return;}
+  list.innerHTML=cats.map(cat=>{
+    const catTopics=ts.filter(t=>t.category_id===cat.id);
+    if(!catTopics.length)return'';
+    return`<div class="cdd-group">${cat.name}</div>${catTopics.map(t=>`<div class="cdd-item" onclick="selectTopic('${t.id}','${t.name}')">${t.name}</div>`).join('')}`;
+  }).join('');
 }
 function updateTI(){const n=document.getElementById('t-cnt').value;document.getElementById('ti-q').textContent=n;document.getElementById('ti-t').textContent=n+'m';}
+function selectTopic(id,name){
+  document.getElementById('t-topic').value=id;
+  document.getElementById('dd-topic-txt').textContent=name;
+  document.getElementById('dd-topic').classList.remove('open');
+}
 async function registerTest(){
   const tid=document.getElementById('t-topic').value,diff=document.getElementById('t-diff').value,cnt=parseInt(document.getElementById('t-cnt').value);
   if(!tid){showToast('Please select a topic','error');return;}
