@@ -15,7 +15,7 @@ const GROQ_MODEL = Deno.env.get("GROQ_MODEL") || "llama-3.1-8b-instant";
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   try {
-    const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SERVICE_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const auth = req.headers.get("Authorization");
     if (!auth) return resp({ error: "Unauthorized" }, 401);
     const { data: { user } } = await sb.auth.getUser(auth.replace("Bearer ", ""));

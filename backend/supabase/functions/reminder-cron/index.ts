@@ -26,7 +26,7 @@ serve(async (req) => {
   }
 
   try {
-    const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SERVICE_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const results: Record<string,any> = {};
 
     // ── 1. Send reminders to inactive users (24h+) ───────
