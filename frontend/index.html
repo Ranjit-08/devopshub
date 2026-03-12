@@ -458,6 +458,37 @@ nav.scrolled{background:rgba(3,4,13,.97);box-shadow:0 4px 32px rgba(0,0,0,.45)}
    PROFESSIONAL UI ENHANCEMENTS
 ══════════════════════════════════ */
 
+/* Fix dropdown option colors - critical */
+select option {
+  background:#0d1224!important;
+  color:#f0f6ff!important;
+  padding:10px 14px!important;
+  font-size:14px!important;
+}
+select optgroup {
+  background:#080c1a!important;
+  color:#38bdf8!important;
+  font-weight:700!important;
+  font-size:11px!important;
+  letter-spacing:1px!important;
+  text-transform:uppercase!important;
+  padding:8px 0!important;
+}
+select optgroup option {
+  color:#e2e8f0!important;
+  background:#0d1224!important;
+  font-weight:400!important;
+  padding:8px 14px!important;
+  text-transform:none!important;
+  letter-spacing:0!important;
+  font-size:14px!important;
+}
+select option:hover,
+select option:checked {
+  background:linear-gradient(135deg,#0ea5e9,#7c3aed)!important;
+  color:#ffffff!important;
+}
+
 /* Better heading font */
 h1,h2,h3,.auth-logo h1,.nav-brand,.page-title{font-family:'Plus Jakarta Sans',sans-serif!important}
 
@@ -1018,11 +1049,12 @@ pre{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;li
      APP LOGIC
 ═══════════════════════════ -->
 <script>
-const SUPABASE_URL     = 'https://kfumvggtnpixfbynzdmy.supabase.co';
-const SUPABASE_ANON_KEY= 'sb_publishable_robMWJyeIPBmWUuCBu1Cjw_gRM6twWU';
+const SUPABASE_URL     = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY= 'YOUR_SUPABASE_ANON_KEY';
 const API = `${SUPABASE_URL}/functions/v1`;
 const {createClient}=supabase;
 const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
 let me=null,profile=null;
 let providers=[],categories=[],topics=[];
 let selProv=null,selCat=null,selTopic=null;
