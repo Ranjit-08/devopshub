@@ -1023,7 +1023,6 @@ const SUPABASE_ANON_KEY= 'sb_publishable_robMWJyeIPBmWUuCBu1Cjw_gRM6twWU';
 const API = `${SUPABASE_URL}/functions/v1`;
 const {createClient}=supabase;
 const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-
 let me=null,profile=null;
 let providers=[],categories=[],topics=[];
 let selProv=null,selCat=null,selTopic=null;
@@ -1288,9 +1287,17 @@ async function registerTest(){
   const tid=document.getElementById('t-topic').value,diff=document.getElementById('t-diff').value,cnt=parseInt(document.getElementById('t-cnt').value);
   if(!tid){showToast('Please select a topic','error');return;}
   const btn=document.getElementById('btn-reg');btn.textContent='Registering…';btn.disabled=true;
-  // Always refresh session to avoid 401
-  const{data:{session}}=await sb.auth.refreshSession();
   try{
+    // Get session - try refresh first, fall back to getSession
+    let session;
+    const refresh=await sb.auth.refreshSession();
+    if(refresh.data?.session){
+      session=refresh.data.session;
+    } else {
+      const get=await sb.auth.getSession();
+      session=get.data?.session;
+    }
+    if(!session){showToast('Please sign out and sign in again','error');btn.textContent='Register & Get Email Confirmation →';btn.disabled=false;return;}
     const r=await fetch(`${API}/register-test`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},body:JSON.stringify({topic_id:tid,difficulty:diff,question_count:cnt})});
     const{data,error}=await r.json();if(error)throw new Error(error);
     testReg=data;
@@ -1419,7 +1426,7 @@ async function loadDash(){
 /* ── DAILY CHALLENGE ── */
 async function loadDC(){
   const today=new Date().toISOString().split('T')[0];
-  const{data}=await sb.from('daily_challenges').select('*,topics(name)').eq('date',today).single();
+  const{data}=await sb.from('daily_challenges').select('*,topics(name)').eq('date',today).maybeSingle();
   if(!data)return;
   const b=document.getElementById('dc-banner');b.style.display='flex';b._ch=data;
   document.getElementById('dc-t').textContent=`${data.topics?.name||'DevOps'} Daily Question`;
