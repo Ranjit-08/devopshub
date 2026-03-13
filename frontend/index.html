@@ -834,8 +834,6 @@ pre{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;li
 (function(){
   // Show splash elements with animation
   setTimeout(()=>{
-    document.getElementById('splash-logo').style.opacity='1';
-    document.getElementById('splash-logo').style.transform='scale(1) translateY(0)';
     document.getElementById('splash-title').style.opacity='1';
     document.getElementById('splash-title').style.transform='translateY(0)';
     document.getElementById('splash-tag').style.opacity='1';
@@ -1730,10 +1728,11 @@ function renderResult(r){
   }
 
   // Action buttons
-  var acts=document.createElement('div');acts.className='racts';acts.style.marginTop='28px';
-  acts.innerHTML='<button class="btn btn-primary btn-lg" onclick="resetTest()">🔄 Take Another Test</button>'
-    +'<button class="btn btn-outline" onclick="showPage('learn')">📚 Study More</button>'
-    +'<button class="btn btn-ghost" onclick="showPage('dashboard')">📊 Dashboard</button>';
+   acts.innerHTML = `
+     <button class="btn btn-primary btn-lg" onclick="resetTest()">🔄 Take Another Test</button>
+     <button class="btn btn-outline" onclick="showPage('learn')">📚 Study More</button>
+     <button class="btn btn-ghost" onclick="showPage('dashboard')">📊 Dashboard</button>
+   `;
   card.appendChild(acts);
 
   var vq=document.getElementById('v-quiz');vq.innerHTML='';vq.appendChild(wrap);
