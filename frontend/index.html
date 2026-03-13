@@ -1268,6 +1268,7 @@ let providers=[],categories=[],topics=[];
 let selProv=null,selCat=null,selTopic=null;
 let learnDiff='beginner',labDiff='beginner';
 let testReg=null,quiz=null,answers={},curQ=0;
+let practiceMode=false;
 let qTimer=null,timeLeft=0,visH=null;
 
 /* ── BOOT ── */
@@ -1650,7 +1651,10 @@ async function doSubmit(auto=false){
   const{data:{session}}=await sb.auth.refreshSession();
   try{
     const r=await fetch(`${API}/submit-test`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},body:JSON.stringify({registration_id:testReg.id,answers,questions:quiz.questions,time_taken_seconds:taken})});
-    const{data,error}=await r.json();if(error)throw new Error(error);
+    const{data,error}=await r.json();if(error)throw new Error(error);if(practiceMode){
+  showPracticeThanks();
+  return;
+}
     renderResult(data);await loadProfile();
   }catch(e){document.getElementById('v-quiz').innerHTML=errBox(e.message,'');}
 }
@@ -1766,20 +1770,56 @@ function practiceWrong(){
   });
 
   if(wrongQuestions.length === 0){
-    showToast("🎉 You got everything correct!", "success");
+    showToast("🎉 Perfect! No wrong questions.", "success");
     return;
   }
 
-  // Create a new quiz with only wrong questions
+  practiceMode = true;
+
   quiz.questions = wrongQuestions;
 
-  // Reset state
   answers = {};
   curQ = 0;
 
   document.getElementById('v-quiz').innerHTML = '';
 
   renderQ();
+}
+function showPracticeThanks(){
+
+  practiceMode = false;
+  
+  document.getElementById('v-quiz').innerHTML = `
+  <div class="rw">
+    <div class="rc">
+
+      <div class="rh">
+        <div style="font-size:60px;margin-bottom:10px">🎉</div>
+        <div class="rv" style="color:var(--green)">
+          Great Job Practicing!
+        </div>
+        <div class="rs">
+          Reviewing your mistakes is the fastest way to improve.
+        </div>
+      </div>
+
+      <div class="racts">
+        <button class="btn btn-primary btn-lg" onclick="showPage('learn')">
+          📚 Continue Learning
+        </button>
+
+        <button class="btn btn-outline" onclick="resetTest()">
+          🔄 Try Another Test
+        </button>
+
+        <button class="btn btn-ghost" onclick="showPage('dashboard')">
+          📊 Go to Dashboard
+        </button>
+      </div>
+
+    </div>
+  </div>
+  `;
 }
 function renderAnalysis(card, question_results){
 
