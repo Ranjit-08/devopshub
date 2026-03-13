@@ -1725,6 +1725,7 @@ function renderResult(r){
       qb.appendChild(qCard);
     });
     card.appendChild(qb);
+    renderAnalysis(card, question_results);
   }
 
   // Action buttons
@@ -1733,15 +1734,100 @@ function renderResult(r){
 
   acts.innerHTML = `
   <button class="btn btn-primary btn-lg" onclick="resetTest()">🔄 Take Another Test</button>
+  <button class="btn btn-outline" onclick="practiceWrong()">🎯 Practice Wrong Questions</button>
   <button class="btn btn-outline" onclick="showPage('learn')">📚 Study More</button>
   <button class="btn btn-ghost" onclick="showPage('dashboard')">📊 Dashboard</button>
   `;
   card.appendChild(acts);
-
-  var vq=document.getElementById('v-quiz');vq.innerHTML='';vq.appendChild(wrap);
+  var vq=document.getElementById('v-quiz');
+  vq.innerHTML='';
+  vq.appendChild(wrap);
 }
-function resetTest(){testReg=null;quiz=null;answers={};curQ=0;document.getElementById('v-setup').style.display='block';document.getElementById('v-regok').style.display='none';document.getElementById('v-quiz').style.display='none';document.getElementById('v-quiz').innerHTML='';}
 
+/* ── ANALYSIS SECTION ── */
+function resetTest(){
+   testReg=null;
+   quiz=null;
+   answers={};
+   curQ=0;
+   document.getElementById('v-setup').style.display='block';
+   document.getElementById('v-regok').style.display='none';
+   document.getElementById('v-quiz').style.display='none';
+   document.getElementById('v-quiz').innerHTML='';
+}
+function practiceWrong(){
+
+  const wrongQuestions = [];
+
+  quiz.questions.forEach((q,i)=>{
+    if(answers[i] !== q.correct_answer){
+      wrongQuestions.push(q);
+    }
+  });
+
+  if(wrongQuestions.length === 0){
+    showToast("🎉 You got everything correct!", "success");
+    return;
+  }
+
+  // Create a new quiz with only wrong questions
+  quiz.questions = wrongQuestions;
+
+  // Reset state
+  answers = {};
+  curQ = 0;
+
+  document.getElementById('v-quiz').innerHTML = '';
+
+  renderQ();
+}
+function renderAnalysis(card, question_results){
+
+  const box = document.createElement('div');
+
+  let html = `<h3 style="margin-top:30px">📊 Test Analysis</h3>`;
+
+  question_results.forEach((q,i)=>{
+
+    const userAns = q.user_answer;
+    const correct = q.correct_answer;
+    const isCorrect = q.is_correct;
+
+    html += `
+      <div style="margin-top:16px;padding:14px;border-radius:10px;
+          border:1px solid ${isCorrect ? 'rgba(0,255,150,.4)' : 'rgba(255,70,70,.4)'};
+          background:${isCorrect ? 'rgba(0,255,150,.05)' : 'rgba(255,70,70,.05)'}">
+
+        <div style="font-weight:600;margin-bottom:8px">
+          Q${i+1}. ${q.question}
+        </div>
+
+        <div style="font-size:13px;margin-bottom:6px">
+          Your answer:
+          <b style="color:${isCorrect ? 'var(--green)' : 'var(--red)'}">
+          ${userAns !== null ? q.options[userAns] : 'Not answered'}
+          </b>
+        </div>
+
+        <div style="font-size:13px;margin-bottom:6px">
+          Correct answer:
+          <b style="color:var(--green)">
+          ${q.options[correct]}
+          </b>
+        </div>
+
+        <div style="font-size:13px;color:var(--text2)">
+          💡 ${q.explanation || "Explanation not available"}
+        </div>
+
+      </div>
+    `;
+  });
+
+  box.innerHTML = html;
+
+  card.appendChild(box);
+}
 /* ── DASHBOARD ── */
 async function loadDash(){
   if(!me)return;
