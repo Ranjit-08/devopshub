@@ -1728,11 +1728,14 @@ function renderResult(r){
   }
 
   // Action buttons
-   acts.innerHTML = `
-     <button class="btn btn-primary btn-lg" onclick="resetTest()">🔄 Take Another Test</button>
-     <button class="btn btn-outline" onclick="showPage('learn')">📚 Study More</button>
-     <button class="btn btn-ghost" onclick="showPage('dashboard')">📊 Dashboard</button>
-   `;
+  var acts = document.createElement('div');
+  acts.className = 'racts';
+
+  acts.innerHTML = `
+  <button class="btn btn-primary btn-lg" onclick="resetTest()">🔄 Take Another Test</button>
+  <button class="btn btn-outline" onclick="showPage('learn')">📚 Study More</button>
+  <button class="btn btn-ghost" onclick="showPage('dashboard')">📊 Dashboard</button>
+  `;
   card.appendChild(acts);
 
   var vq=document.getElementById('v-quiz');vq.innerHTML='';vq.appendChild(wrap);
