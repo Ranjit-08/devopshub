@@ -27,25 +27,83 @@ serve(async (req) => {
       .select("*, topics(name, full_name)").eq("id",registration_id).eq("user_id",user.id).single();
     if (!reg) return resp({error:"Registration not found"},404);
     if (reg.status==="disqualified") return resp({error:"Test was disqualified"},403);
-    if (reg.status==="completed")    return resp({error:"Already submitted"},400);
+    if (reg.status==="completed" && questions.length === reg.total_questions) {
+     return resp({error:"Already submitted"},400);
+    }
 
     // ── Score calculation ────────────────────────────────
     let correct = 0;
     const total = questions.length;
-    questions.forEach((q:any, i:number) => {
-      if (answers[i]!==undefined && Number(answers[i])===Number(q.correct_answer)) correct++;
-    });
-    const percentage = (correct / total) * 100;
-    const passed     = percentage >= 70;
 
+    const question_results = questions.map((q:any, i:number) => {
+
+    const user_answer = answers[i] !== undefined ? Number(answers[i]) : null
+    const correct_answer = Number(q.correct_answer)
+
+    const is_correct = user_answer === correct_answer
+
+    if(is_correct) correct++
+
+    return {
+    question: q.question,
+    options: q.options,
+    user_answer,
+    correct_answer,
+    is_correct,
+    explanation: q.explanation || ""
+  }
+
+})
     // ── Save quiz attempt ────────────────────────────────
-    await sb.from("quiz_attempts").insert({
-      registration_id, user_id:user.id, topic_id:reg.topic_id,
-      difficulty:reg.difficulty, questions, answers,
-      score:correct*10, total_questions:total, correct_answers:correct,
-      time_taken_seconds, percentage, passed,
-      completed_at:new Date().toISOString(),
-    });
+   const percentage = (correct / total) * 100
+   const passed = percentage >= 70
+
+   const wrong = question_results.filter(q => !q.is_correct)
+
+   let analysis = ""
+
+   if (percentage >= 90) {
+   analysis = "Outstanding performance. You have strong mastery of this topic."
+   }
+   else if (percentage >= 70) {
+   analysis = "Good performance. Review a few weak areas to strengthen your understanding."
+   }
+   else if (percentage >= 50) {
+   analysis = "You understand some concepts but need more practice."
+   }
+   else {
+   analysis = "You should revisit the learning modules before attempting another test."
+   }
+
+   if (wrong.length) {
+   analysis += "\n\nFocus on these areas:\n"
+   wrong.slice(0,3).forEach(q=>{
+   analysis += `• Review concept related to: ${q.question.slice(0,60)}...\n`
+   })
+   }   
+
+   // ── Save quiz attempt ────────────────────────────────
+   await sb.from("quiz_attempts").insert({
+   registration_id,
+   user_id: user.id,
+   topic_id: reg.topic_id,
+   difficulty: reg.difficulty,
+
+   questions,
+   answers,
+   question_results,
+   analysis,
+
+   score: correct * 10,
+   total_questions: total,
+   correct_answers: correct,
+   time_taken_seconds,
+
+   percentage,
+   passed,
+
+   completed_at: new Date().toISOString(),
+   });
 
     // ── Update registration ──────────────────────────────
     await sb.from("test_registrations")
@@ -56,9 +114,8 @@ serve(async (req) => {
     const xp = passed ? Math.round(percentage) + 50 : Math.round(percentage * 0.3);
     await sb.rpc("increment_skill_score", { p_user_id:user.id, p_amount:xp });
     await sb.from("profiles").update({
-      total_tests_taken: sb.rpc("coalesce_increment", { col:"total_tests_taken", uid:user.id }),
-      last_active: new Date().toISOString(),
-    }).eq("id",user.id);
+      last_active: new Date().toISOString()
+     }).eq("id",user.id);
 
     // ── Issue certificate if passed ──────────────────────
     let certificate = null;
@@ -90,7 +147,18 @@ serve(async (req) => {
       await telegram(`${passed?"🏆 PASSED":"❌ FAILED"} Test Result\n\n👤 ${userName}\n📚 ${topicName}\n📊 ${correct}/${total} = ${percentage.toFixed(1)}%\n🎯 ${reg.difficulty.toUpperCase()}\n${certificate?`🎓 Cert: ${certificate.certificate_number}`:""}`);
     }
 
-    return resp({ data:{ score:correct, total, percentage, passed, certificate, xp_earned:xp } });
+    return resp({
+   data:{
+   score:correct,
+   total,
+   percentage,
+   passed,
+   certificate,
+   xp_earned:xp,
+   analysis,
+   question_results
+  } 
+  });
   } catch(e:any){ return resp({error:e.message},500); }
 });
 
