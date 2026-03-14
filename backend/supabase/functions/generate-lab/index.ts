@@ -1,5 +1,6 @@
 // ─────────────────────────────────────────────────────────
 // generate-lab/index.ts  —  FREE STACK (Groq AI)
+// Updated: includes CLI + Console/GUI methods
 // ─────────────────────────────────────────────────────────
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -39,7 +40,7 @@ Return ONLY valid JSON (no markdown, no extra text):
   "lab_title": "Hands-on Lab: ${topicName}",
   "difficulty": "${difficulty}",
   "estimated_time": "30-45 minutes",
-  "objective": "What the student will achieve by the end",
+  "objective": "What the student will achieve",
   "prerequisites": ["Prerequisite 1","Prerequisite 2"],
   "steps": [
     {
@@ -50,17 +51,24 @@ Return ONLY valid JSON (no markdown, no extra text):
         {
           "description": "What this command does",
           "language": "bash",
-          "command": "actual command here",
+          "command": "actual CLI command here",
           "expected_output": "what you should see"
+        }
+      ],
+      "console_steps": [
+        {
+          "description": "How to do this via AWS Console / GUI",
+          "steps": ["Navigate to AWS Console > EC2","Click Launch Instance","Select Amazon Linux 2 AMI","Choose t2.micro","Click Launch"]
         }
       ],
       "notes": "Optional tip or warning"
     }
   ],
   "summary": "What was accomplished",
-  "cleanup": "Commands to undo/delete what was created"
+  "cleanup": "Commands to undo/delete what was created",
+  "cleanup_console": "How to clean up via Console/GUI"
 }
-Include 5-7 steps with real, working commands. ${difficulty==="beginner"?"Start from scratch, explain everything.":difficulty==="intermediate"?"Focus on real-world patterns.":"Cover advanced configurations and edge cases."}`;
+Include 5-7 steps with real working commands AND matching console/GUI steps. ${difficulty==="beginner"?"Start from scratch, explain everything.":difficulty==="intermediate"?"Focus on real-world patterns.":"Cover advanced configurations and edge cases."}`;
 
     const raw = await callGroq(prompt);
     let parsed: any;
@@ -80,13 +88,16 @@ Include 5-7 steps with real, working commands. ${difficulty==="beginner"?"Start 
   } catch(e:any){ return resp({error:e.message},500); }
 });
 
-async function callGroq(prompt: string) {
+async function callGroq(prompt: string): Promise<string> {
   const r = await fetch("https://api.groq.com/openai/v1/chat/completions",{
     method:"POST",
     headers:{"Authorization":`Bearer ${GROQ_KEY}`,"Content-Type":"application/json"},
-    body:JSON.stringify({model:GROQ_MODEL,messages:[{role:"user",content:prompt}],max_tokens:3500,temperature:0.6}),
+    body:JSON.stringify({model:GROQ_MODEL,messages:[{role:"user",content:prompt}],max_tokens:3000,temperature:0.4}),
   });
-  if(!r.ok) throw new Error(`Groq error ${r.status}: ${await r.text()}`);
-  return (await r.json()).choices[0].message.content;
+  const d = await r.json();
+  return d.choices?.[0]?.message?.content||"";
 }
-function resp(data:any,status=200){ return new Response(JSON.stringify(data),{status,headers:{...cors,"Content-Type":"application/json"}}); }
+
+function resp(data: any, status = 200) {
+  return new Response(JSON.stringify(data),{status,headers:{...cors,"Content-Type":"application/json"}});
+}
