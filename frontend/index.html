@@ -974,34 +974,6 @@ pre{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;li
 
 
 <!-- ═══════════════════════════
-     AI SEARCH MODAL
-═══════════════════════════ -->
-<div class="modal-overlay" id="m-search">
-  <div class="modal-box" style="max-width:560px">
-    <button class="modal-close" onclick="closeSearch()">✕</button>
-    <div class="modal-icon">🔍</div>
-    <div class="modal-title">Ask AI Anything</div>
-    <p class="modal-sub" style="margin-bottom:20px">Ask any DevOps, AWS, Kubernetes, Docker, or Cloud question — get an instant AI answer.</p>
-    <div style="position:relative;margin-bottom:14px">
-      <input class="form-input" id="search-input" type="text" placeholder="e.g. What is the difference between ECS and EKS?" style="padding-right:100px" onkeydown="if(event.key==='Enter')doAiSearch()">
-      <button class="btn btn-primary btn-sm" style="position:absolute;right:6px;top:6px" onclick="doAiSearch()" id="btn-search">Ask AI →</button>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px">
-      <span class="sug-chip" onclick="fillSearch('What is Docker and how does it work?')">Docker basics</span>
-      <span class="sug-chip" onclick="fillSearch('Explain Kubernetes pods vs deployments')">K8s pods</span>
-      <span class="sug-chip" onclick="fillSearch('What is AWS IAM and how to use roles?')">AWS IAM</span>
-      <span class="sug-chip" onclick="fillSearch('How does Terraform state management work?')">Terraform state</span>
-      <span class="sug-chip" onclick="fillSearch('What is CI/CD and how to set it up?')">CI/CD pipeline</span>
-      <span class="sug-chip" onclick="fillSearch('Difference between AWS Lambda and EC2')">Lambda vs EC2</span>
-    </div>
-    <div id="search-result" style="display:none;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;padding:20px">
-      <div style="font-size:11px;color:var(--blue);font-family:var(--font-c);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">🤖 AI ANSWER</div>
-      <div id="search-answer" class="ai-answer"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════
      FORGOT PASSWORD MODAL
 ═══════════════════════════ -->
 <div class="modal-overlay" id="m-forgot">
@@ -1021,6 +993,64 @@ pre{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;li
      MAIN APP
 ═══════════════════════════ -->
 <div id="main-app" style="display:none">
+
+<!-- ═══════════════════════════
+     AI SEARCH FULL PAGE
+═══════════════════════════ -->
+<div id="page-search" style="display:none;position:fixed;inset:0;z-index:5000;background:var(--bg);overflow-y:auto;">
+  <div style="max-width:760px;margin:0 auto;padding:24px 24px 80px;">
+    <!-- Back button -->
+    <button onclick="closeSearch()" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;color:var(--text2);padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:32px;font-family:var(--font-b);transition:all .2s" onmouseover="this.style.borderColor='var(--borderH)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">← Back to Home</button>
+
+    <!-- Header -->
+    <div style="text-align:center;margin-bottom:36px">
+      <div style="font-size:40px;margin-bottom:12px">🔍</div>
+      <h1 style="font-family:var(--font-h);font-size:28px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,var(--text),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Ask AI Anything</h1>
+      <p style="color:var(--text3);font-size:14px">DevOps · AWS · Kubernetes · Docker · Terraform · CI/CD</p>
+    </div>
+
+    <!-- Search input -->
+    <div style="position:relative;margin-bottom:16px">
+      <input id="search-input" type="text" placeholder="e.g. What is the difference between ECS and EKS?" 
+        style="width:100%;padding:16px 120px 16px 20px;background:rgba(255,255,255,.04);border:1px solid rgba(56,189,248,.25);border-radius:14px;color:var(--text);font-size:15px;font-family:var(--font-b);outline:none;transition:all .25s"
+        onkeydown="if(event.key==='Enter')doAiSearch()"
+        onfocus="this.style.borderColor='var(--blue2)';this.style.boxShadow='0 0 0 3px rgba(14,165,233,.12)'"
+        onblur="this.style.borderColor='rgba(56,189,248,.25)';this.style.boxShadow='none'">
+      <button id="btn-search" onclick="doAiSearch()" style="position:absolute;right:8px;top:8px;background:linear-gradient(135deg,#00b4d8,#7b2ff7);border:none;border-radius:10px;color:#fff;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-h)">Ask AI →</button>
+    </div>
+
+    <!-- Suggestions -->
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px">
+      <span class="sug-chip" onclick="fillSearch('What is Docker and how does it work?')">Docker basics</span>
+      <span class="sug-chip" onclick="fillSearch('Explain Kubernetes pods vs deployments')">K8s pods</span>
+      <span class="sug-chip" onclick="fillSearch('What is AWS IAM and how to use roles?')">AWS IAM</span>
+      <span class="sug-chip" onclick="fillSearch('How does Terraform state management work?')">Terraform state</span>
+      <span class="sug-chip" onclick="fillSearch('What is CI/CD and how to set it up?')">CI/CD pipeline</span>
+      <span class="sug-chip" onclick="fillSearch('Difference between AWS Lambda and EC2')">Lambda vs EC2</span>
+      <span class="sug-chip" onclick="fillSearch('What is Kubernetes and why use it?')">Kubernetes intro</span>
+      <span class="sug-chip" onclick="fillSearch('How does AWS VPC work?')">AWS VPC</span>
+      <span class="sug-chip" onclick="fillSearch('What is GitOps?')">GitOps</span>
+    </div>
+
+    <!-- Answer area -->
+    <div id="search-result" style="display:none;background:linear-gradient(145deg,var(--bg1),var(--bg2));border:1px solid var(--border);border-radius:18px;padding:28px">
+      <div style="font-size:11px;color:var(--blue);font-family:var(--font-c);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px">
+        <span>🤖</span> AI ANSWER
+      </div>
+      <div id="search-answer" class="ai-answer" style="font-size:15px;line-height:1.85"></div>
+      <!-- Ask another -->
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+        <p style="font-size:13px;color:var(--text3);margin-bottom:12px">Ask a follow-up or try another question:</p>
+        <div style="display:flex;gap:8px">
+          <input id="search-followup" type="text" placeholder="Ask another question..." 
+            style="flex:1;padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:var(--font-b);outline:none"
+            onkeydown="if(event.key==='Enter'){document.getElementById('search-input').value=this.value;this.value='';doAiSearch();}">
+          <button onclick="document.getElementById('search-input').value=document.getElementById('search-followup').value;document.getElementById('search-followup').value='';doAiSearch()" style="background:linear-gradient(135deg,#00b4d8,#7b2ff7);border:none;border-radius:10px;color:#fff;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">Ask →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
   <nav id="main-nav">
     <div class="nav-logo" onclick="showPage('home')">DevOpsHub</div>
@@ -1326,7 +1356,6 @@ document.querySelectorAll('.modal-overlay').forEach(function(overlay){
   overlay.addEventListener('click',function(e){
     if(e.target===overlay){
       overlay.classList.remove('open');
-      document.body.style.overflow='';
     }
   });
 });</script>
@@ -1351,16 +1380,21 @@ let qTimer=null,timeLeft=0,visH=null;
 
 /* ── AI SEARCH ── */
 function openSearch(){
-  document.getElementById('m-search').classList.add('open');
+  document.getElementById('page-search').style.display='block';
   document.getElementById('search-result').style.display='none';
-  document.body.style.overflow='hidden';
-  setTimeout(()=>document.getElementById('search-input').focus(),100);
+  document.getElementById('search-answer').innerHTML='';
+  setTimeout(()=>{var el=document.getElementById('search-input');if(el)el.focus();},100);
 }
 function closeSearch(){
-  document.getElementById('m-search').classList.remove('open');
-  document.body.style.overflow='';
+  document.getElementById('page-search').style.display='none';
+  document.getElementById('search-input').value='';
 }
-function fillSearch(q){document.getElementById('search-input').value=q;document.getElementById('m-search').classList.add('open');doAiSearch();}
+function fillSearch(q){
+  document.getElementById('page-search').style.display='block';
+  document.getElementById('search-result').style.display='none';
+  document.getElementById('search-input').value=q;
+  doAiSearch();
+}
 async function doAiSearch(){
   const q=document.getElementById('search-input').value.trim();
   if(!q){document.getElementById('search-input').style.borderColor='var(--red)';setTimeout(()=>document.getElementById('search-input').style.borderColor='',1000);return;}
