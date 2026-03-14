@@ -750,6 +750,23 @@ pre{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;li
   border-radius:16px!important;
   box-shadow:0 0 30px rgba(251,191,36,.06)!important;
 }
+
+/* ═══════════════════════════
+   AI SEARCH
+═══════════════════════════ */
+.search-bar{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(56,189,248,.2);border-radius:16px;padding:6px 6px 6px 20px;max-width:580px;margin:0 auto 36px;animation:slideUp .8s cubic-bezier(.16,1,.3,1) .35s both;box-shadow:0 0 40px rgba(0,212,255,.06)}
+.search-bar input{flex:1;background:none;border:none;outline:none;font-size:15px;color:var(--text);font-family:var(--font-b)}
+.search-bar input::placeholder{color:var(--text3)}
+.search-bar button{background:linear-gradient(135deg,#00b4d8,#7b2ff7);border:none;border-radius:12px;color:#fff;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-h);white-space:nowrap;transition:all .2s}
+.search-bar button:hover{transform:scale(1.04);box-shadow:0 4px 20px rgba(14,165,233,.4)}
+.ai-answer{font-size:14px;color:var(--text2);line-height:1.85}
+.ai-answer strong,.ai-answer b{color:var(--text);font-weight:600}
+.ai-answer code{background:rgba(56,189,248,.1);color:var(--blue);padding:2px 6px;border-radius:4px;font-family:var(--font-c);font-size:13px}
+.ai-answer ul,.ai-answer ol{padding-left:18px;margin:8px 0}
+.ai-answer li{margin-bottom:4px}
+.search-suggestions{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px;margin-bottom:36px;animation:slideUp .8s cubic-bezier(.16,1,.3,1) .4s both}
+.sug-chip{background:rgba(255,255,255,.03);border:1px solid rgba(56,189,248,.15);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;transition:all .2s;font-family:var(--font-b)}
+.sug-chip:hover{border-color:var(--blue);color:var(--blue);background:rgba(56,189,248,.06)}
 </style>
 </head>
 <body>
@@ -834,6 +851,8 @@ pre{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;li
 (function(){
   // Show splash elements with animation
   setTimeout(()=>{
+    document.getElementById('splash-logo').style.opacity='1';
+    document.getElementById('splash-logo').style.transform='scale(1) translateY(0)';
     document.getElementById('splash-title').style.opacity='1';
     document.getElementById('splash-title').style.transform='translateY(0)';
     document.getElementById('splash-tag').style.opacity='1';
@@ -949,6 +968,35 @@ pre{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;li
   </div>
 </div>
 
+
+<!-- ═══════════════════════════
+     AI SEARCH MODAL
+═══════════════════════════ -->
+<div class="modal-overlay" id="m-search">
+  <div class="modal-box" style="max-width:560px">
+    <button class="modal-close" onclick="closeSearch()">✕</button>
+    <div class="modal-icon">🔍</div>
+    <div class="modal-title">Ask AI Anything</div>
+    <p class="modal-sub" style="margin-bottom:20px">Ask any DevOps, AWS, Kubernetes, Docker, or Cloud question — get an instant AI answer.</p>
+    <div style="position:relative;margin-bottom:14px">
+      <input class="form-input" id="search-input" type="text" placeholder="e.g. What is the difference between ECS and EKS?" style="padding-right:100px" onkeydown="if(event.key==='Enter')doAiSearch()">
+      <button class="btn btn-primary btn-sm" style="position:absolute;right:6px;top:6px" onclick="doAiSearch()" id="btn-search">Ask AI →</button>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px">
+      <span class="sug-chip" onclick="fillSearch('What is Docker and how does it work?')">Docker basics</span>
+      <span class="sug-chip" onclick="fillSearch('Explain Kubernetes pods vs deployments')">K8s pods</span>
+      <span class="sug-chip" onclick="fillSearch('What is AWS IAM and how to use roles?')">AWS IAM</span>
+      <span class="sug-chip" onclick="fillSearch('How does Terraform state management work?')">Terraform state</span>
+      <span class="sug-chip" onclick="fillSearch('What is CI/CD and how to set it up?')">CI/CD pipeline</span>
+      <span class="sug-chip" onclick="fillSearch('Difference between AWS Lambda and EC2')">Lambda vs EC2</span>
+    </div>
+    <div id="search-result" style="display:none;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;padding:20px">
+      <div style="font-size:11px;color:var(--blue);font-family:var(--font-c);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">🤖 AI ANSWER</div>
+      <div id="search-answer" class="ai-answer"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════════════
      FORGOT PASSWORD MODAL
 ═══════════════════════════ -->
@@ -991,6 +1039,19 @@ pre{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;li
       <h1>Master the Cloud<br>with <span class="grad-text">AI Power</span></h1>
       <p class="hero-sub">Generate personalised learning modules, take AI-crafted quizzes, and practise real DevOps labs — for every AWS service and tool you need.</p>
       <div class="typing-wrap"><span style="color:var(--green)">▶</span><span id="typing"></span><span class="cursor"></span></div>
+      <!-- AI Search Bar -->
+      <div class="search-bar" onclick="document.getElementById('search-input').focus()">
+        <span style="font-size:16px">🔍</span>
+        <input type="text" placeholder="Ask anything — What is Kubernetes? How does S3 work?..." id="hero-search" onkeydown="if(event.key==='Enter'){document.getElementById('search-input').value=this.value;openSearch();}" style="background:none;border:none;outline:none;font-size:14px;color:var(--text);width:100%;font-family:var(--font-b)">
+        <button onclick="document.getElementById('search-input').value=document.getElementById('hero-search').value;openSearch()">Ask AI ✨</button>
+      </div>
+      <div class="search-suggestions">
+        <span class="sug-chip" onclick="document.getElementById('search-input').value='What is the difference between ECS and EKS?';openSearch()">ECS vs EKS</span>
+        <span class="sug-chip" onclick="document.getElementById('search-input').value='How does Terraform state management work?';openSearch()">Terraform state</span>
+        <span class="sug-chip" onclick="document.getElementById('search-input').value='What is AWS IAM and how to use roles?';openSearch()">AWS IAM roles</span>
+        <span class="sug-chip" onclick="document.getElementById('search-input').value='Explain Kubernetes pods vs deployments';openSearch()">K8s pods</span>
+        <span class="sug-chip" onclick="document.getElementById('search-input').value='What is CI/CD and how to set it up?';openSearch()">CI/CD basics</span>
+      </div>
       <div class="hero-btns">
         <button class="btn btn-primary btn-lg" onclick="showPage('learn')">🎓 Start Learning</button>
         <button class="btn btn-outline btn-lg" onclick="showPage('test')">📝 Take a Quiz</button>
@@ -1186,8 +1247,11 @@ pre{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;li
     <button class="modal-close" onclick="document.getElementById('m-dc').classList.remove('open')">✕</button>
     <div class="modal-icon">🎯</div>
     <div class="modal-title">Daily Challenge</div>
-    <p class="modal-sub" style="margin-bottom:20px">+50⚡ for a correct answer</p>
+    <p class="modal-sub" style="margin-bottom:20px">+50⚡ for a correct answer — select your answer then click Submit</p>
     <div id="dc-qa"></div>
+    <div id="dc-submit-row" style="margin-top:16px;display:none">
+      <button class="btn btn-primary btn-full" id="btn-dc-submit" onclick="submitDC()">Submit Answer →</button>
+    </div>
   </div>
 </div>
 
@@ -1268,8 +1332,42 @@ let providers=[],categories=[],topics=[];
 let selProv=null,selCat=null,selTopic=null;
 let learnDiff='beginner',labDiff='beginner';
 let testReg=null,quiz=null,answers={},curQ=0;
-let practiceMode=false;
 let qTimer=null,timeLeft=0,visH=null;
+
+
+/* ── AI SEARCH ── */
+function openSearch(){
+  document.getElementById('m-search').classList.add('open');
+  document.getElementById('search-result').style.display='none';
+  setTimeout(()=>document.getElementById('search-input').focus(),100);
+}
+function closeSearch(){document.getElementById('m-search').classList.remove('open');}
+function fillSearch(q){document.getElementById('search-input').value=q;document.getElementById('m-search').classList.add('open');doAiSearch();}
+async function doAiSearch(){
+  const q=document.getElementById('search-input').value.trim();
+  if(!q){document.getElementById('search-input').style.borderColor='var(--red)';setTimeout(()=>document.getElementById('search-input').style.borderColor='',1000);return;}
+  const btn=document.getElementById('btn-search');btn.textContent='Thinking…';btn.disabled=true;
+  const res=document.getElementById('search-result');const ans=document.getElementById('search-answer');
+  res.style.display='block';ans.innerHTML='<div class="loading" style="padding:20px 0"><div class="spin-w" style="width:36px;height:36px"><div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div></div></div>';
+  try{
+    const{data:{session}}=await sb.auth.refreshSession();
+    const r=await fetch(`${API}/ask-ai`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},body:JSON.stringify({question:q})});
+    const{data,error}=await r.json();if(error)throw new Error(error);
+    // Render markdown-lite: bold, code, lists
+    let html=data.answer
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+      .replace(/`([^`]+)`/g,'<code>$1</code>')
+      .replace(/^(\d+)\.\s+/gm,'<br><b>$1.</b> ')
+      .replace(/^[-•]\s+/gm,'<br>• ')
+      .replace(/
+
+/g,'<br><br>').replace(/
+/g,'<br>');
+    ans.innerHTML=html;
+  }catch(e){ans.innerHTML='<span style="color:var(--red)">⚠️ '+e.message+'</span>';}
+  btn.textContent='Ask AI →';btn.disabled=false;
+}
 
 /* ── BOOT ── */
 async function boot(){
@@ -1501,18 +1599,36 @@ async function pickLab(tid){
   }catch(e){out.innerHTML=errBox(e.message,`pickLab('${tid}')`);}
 }
 function renderLab(lab){
-  document.getElementById('lab-out').innerHTML=`
-<div class="lp">
-  <h2 style="font-family:var(--font-h);font-size:24px;font-weight:800;margin-bottom:10px">${lab.lab_title}</h2>
-  <div class="lm" style="margin-bottom:24px"><span class="chip ch-${lab.difficulty?.slice(0,3)||'beg'}">${lab.difficulty?.toUpperCase()}</span><span class="chip ch-t">⏱ ${lab.estimated_time}</span></div>
-  <div class="cs"><div class="cs-t">🎯 Objective</div><p style="font-size:14px;line-height:1.7;color:var(--text2)">${lab.objective}</p></div>
-  ${lab.prerequisites?.length?`<div class="cs"><div class="cs-t">📋 Prerequisites</div>${lab.prerequisites.map(p=>`<div style="padding:8px 0;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border)">→ ${p}</div>`).join('')}</div>`:''}
-  <div style="margin:24px 0"><div style="font-family:var(--font-c);font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px">LAB STEPS</div>
-  ${(lab.steps||[]).map(s=>`<div class="lab-step"><div class="sn">${s.step_number}</div><div class="st">${s.title}</div><div class="sd">${s.description}</div>${(s.commands||[]).map(cmd=>`<div class="code-wrap" style="margin-bottom:10px"><div class="ch"><div class="ch-l"><div class="dots"><div class="dot" style="background:#ff5f56"></div><div class="dot" style="background:#ffbd2e"></div><div class="dot" style="background:#27c93f"></div></div><span>${cmd.description||''}</span></div><div style="display:flex;gap:8px"><span class="lang-tag">${cmd.language||'bash'}</span><button class="cp-btn" onclick="doCopy(this,\`${(cmd.command||'').replace(/`/g,'\\`')}\`)">Copy</button></div></div><div class="cb"><pre>${esc(cmd.command||'')}</pre></div>${cmd.expected_output?`<div class="exp-out">Expected: ${cmd.expected_output}</div>`:''}</div>`).join('')}${s.notes?`<div style="font-size:12px;color:var(--yellow);margin-top:8px">💡 ${s.notes}</div>`:''}</div>`).join('')}
-  </div>
-  ${lab.summary?`<div class="sumbox"><div class="cs-t">📌 Summary</div><p style="font-size:14px;line-height:1.7;color:var(--text2)">${lab.summary}</p></div>`:''}
-</div>`;
+  var labId='lab-'+Date.now();
+  var stepHtml=(lab.steps||[]).map(function(s){
+    var cliHtml=(s.commands||[]).map(function(cmd){
+      var safe=(cmd.command||'').replace(/\\/g,'\\\\').replace(/`/g,'\\`');
+      return '<div class="code-wrap" style="margin-bottom:10px"><div class="ch"><div class="ch-l"><div class="dots"><div class="dot" style="background:#ff5f56"></div><div class="dot" style="background:#ffbd2e"></div><div class="dot" style="background:#27c93f"></div></div><span>'+(cmd.description||'')+'</span></div><div style="display:flex;gap:8px"><span class="lang-tag">'+(cmd.language||'bash')+'</span><button class="cp-btn" onclick="doCopy(this,`'+safe+'`)">Copy</button></div></div><div class="cb"><pre>'+esc(cmd.command||'')+'</pre></div>'+(cmd.expected_output?'<div class="exp-out">Expected: '+cmd.expected_output+'</div>':'')+'</div>';
+    }).join('');
+    var consoleHtml=(s.console_steps||[]).map(function(cs){
+      var stepsHtml=(cs.steps||[]).map(function(step,i){
+        return '<div style="display:flex;gap:8px;padding:5px 0;font-size:13px;color:var(--text2);border-bottom:1px solid rgba(255,255,255,.04)"><span style="color:#a78bfa;font-family:var(--font-c);font-size:11px;min-width:20px">'+(i+1)+'.</span>'+step+'</div>';
+      }).join('');
+      return '<div style="background:rgba(123,47,247,.06);border:1px solid rgba(123,47,247,.2);border-radius:10px;padding:14px;margin-bottom:10px"><div style="font-size:12px;color:#a78bfa;font-weight:600;margin-bottom:8px">🖥️ '+(cs.description||'Console/GUI Steps')+'</div>'+stepsHtml+'</div>';
+    }).join('');
+    var hasBoth=s.commands&&s.commands.length&&s.console_steps&&s.console_steps.length;
+    var tid='labtab-'+s.step_number;
+    var tabSection=hasBoth?'<div style="display:flex;gap:6px;margin-bottom:12px"><button id="'+tid+'-cli" class="dbtn beg active" style="font-size:12px;padding:5px 14px" onclick="switchLabTab(''+tid+'','cli')">💻 CLI</button><button id="'+tid+'-con" class="dbtn" style="font-size:12px;padding:5px 14px" onclick="switchLabTab(''+tid+'','con')">🖥️ Console/GUI</button></div>':'';
+    return '<div class="lab-step"><div class="sn">'+s.step_number+'</div><div class="st">'+s.title+'</div><div class="sd">'+s.description+'</div>'+tabSection+(s.commands&&s.commands.length?'<div id="'+tid+'-cli-content">'+cliHtml+'</div>':"")+(s.console_steps&&s.console_steps.length?'<div id="'+tid+'-con-content" style="'+(hasBoth?'display:none':'')+'">'+consoleHtml+'</div>':"")+(s.notes?'<div style="font-size:12px;color:var(--yellow);margin-top:8px">💡 '+s.notes+'</div>':'')+'</div>';
+  }).join('');
+  var prereqHtml=lab.prerequisites&&lab.prerequisites.length?'<div class="cs"><div class="cs-t">📋 Prerequisites</div>'+lab.prerequisites.map(function(p){return '<div style="padding:8px 0;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border)">→ '+p+'</div>';}).join('')+'</div>':'';
+  var cleanupHtml=lab.cleanup?'<div style="background:rgba(239,71,111,.05);border:1px solid rgba(239,71,111,.2);border-radius:14px;padding:20px;margin-top:16px"><div style="font-size:12px;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">🧹 Cleanup</div><div style="font-size:13px;color:var(--text2)">'+lab.cleanup+'</div>'+(lab.cleanup_console?'<div style="font-size:13px;color:var(--text2);margin-top:8px"><strong style="color:#a78bfa">Console:</strong> '+lab.cleanup_console+'</div>':'')+'</div>':'';
+  document.getElementById('lab-out').innerHTML='<div class="lp"><h2 style="font-family:var(--font-h);font-size:24px;font-weight:800;margin-bottom:10px">'+lab.lab_title+'</h2><div class="lm" style="margin-bottom:24px"><span class="chip ch-'+(lab.difficulty?lab.difficulty.slice(0,3):'beg')+'">'+((lab.difficulty||'').toUpperCase())+'</span><span class="chip ch-t">⏱ '+lab.estimated_time+'</span></div><div class="cs"><div class="cs-t">🎯 Objective</div><p style="font-size:14px;line-height:1.7;color:var(--text2)">'+lab.objective+'</p></div>'+prereqHtml+'<div style="margin:24px 0"><div style="font-family:var(--font-c);font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px">LAB STEPS</div>'+stepHtml+'</div>'+(lab.summary?'<div class="sumbox"><div class="cs-t">📌 Summary</div><p style="font-size:14px;line-height:1.7;color:var(--text2)">'+lab.summary+'</p></div>':'')+cleanupHtml+'</div>';
 }
+function switchLabTab(tid,mode){
+  var cliC=document.getElementById(tid+'-cli-content');
+  var conC=document.getElementById(tid+'-con-content');
+  var cliB=document.getElementById(tid+'-cli');
+  var conB=document.getElementById(tid+'-con');
+  if(mode==='cli'){if(cliC)cliC.style.display='';if(conC)conC.style.display='none';if(cliB){cliB.classList.add('active','beg');}if(conB){conB.classList.remove('active');}}
+  else{if(cliC)cliC.style.display='none';if(conC)conC.style.display='';if(conB){conB.classList.add('active');}if(cliB){cliB.classList.remove('active','beg');}}
+}
+
 
 /* ── TEST ── */
 /* ── CUSTOM DROPDOWN HELPERS ── */
@@ -1651,10 +1767,7 @@ async function doSubmit(auto=false){
   const{data:{session}}=await sb.auth.refreshSession();
   try{
     const r=await fetch(`${API}/submit-test`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},body:JSON.stringify({registration_id:testReg.id,answers,questions:quiz.questions,time_taken_seconds:taken})});
-    const{data,error}=await r.json();if(error)throw new Error(error);if(practiceMode){
-  showPracticeThanks();
-  return;
-}
+    const{data,error}=await r.json();if(error)throw new Error(error);
     renderResult(data);await loadProfile();
   }catch(e){document.getElementById('v-quiz').innerHTML=errBox(e.message,'');}
 }
@@ -1729,145 +1842,19 @@ function renderResult(r){
       qb.appendChild(qCard);
     });
     card.appendChild(qb);
-    renderAnalysis(card, question_results);
   }
 
   // Action buttons
-  var acts = document.createElement('div');
-  acts.className = 'racts';
-
-  acts.innerHTML = `
-  <button class="btn btn-primary btn-lg" onclick="resetTest()">🔄 Take Another Test</button>
-  <button class="btn btn-outline" onclick="practiceWrong()">🎯 Practice Wrong Questions</button>
-  <button class="btn btn-outline" onclick="showPage('learn')">📚 Study More</button>
-  <button class="btn btn-ghost" onclick="showPage('dashboard')">📊 Dashboard</button>
-  `;
+  var acts=document.createElement('div');acts.className='racts';acts.style.marginTop='28px';
+  acts.innerHTML='<button class="btn btn-primary btn-lg" onclick="resetTest()">🔄 Take Another Test</button>'
+    +'<button class="btn btn-outline" onclick="showPage('learn')">📚 Study More</button>'
+    +'<button class="btn btn-ghost" onclick="showPage('dashboard')">📊 Dashboard</button>';
   card.appendChild(acts);
-  var vq=document.getElementById('v-quiz');
-  vq.innerHTML='';
-  vq.appendChild(wrap);
+
+  var vq=document.getElementById('v-quiz');vq.innerHTML='';vq.appendChild(wrap);
 }
+function resetTest(){testReg=null;quiz=null;answers={};curQ=0;document.getElementById('v-setup').style.display='block';document.getElementById('v-regok').style.display='none';document.getElementById('v-quiz').style.display='none';document.getElementById('v-quiz').innerHTML='';}
 
-/* ── ANALYSIS SECTION ── */
-function resetTest(){
-   testReg=null;
-   quiz=null;
-   answers={};
-   curQ=0;
-   document.getElementById('v-setup').style.display='block';
-   document.getElementById('v-regok').style.display='none';
-   document.getElementById('v-quiz').style.display='none';
-   document.getElementById('v-quiz').innerHTML='';
-}
-function practiceWrong(){
-
-  const wrongQuestions = [];
-
-  quiz.questions.forEach((q,i)=>{
-    if(answers[i] !== q.correct_answer){
-      wrongQuestions.push(q);
-    }
-  });
-
-  if(wrongQuestions.length === 0){
-    showToast("🎉 Perfect! No wrong questions.", "success");
-    return;
-  }
-
-  practiceMode = true;
-
-  quiz.questions = wrongQuestions;
-
-  answers = {};
-  curQ = 0;
-
-  document.getElementById('v-quiz').innerHTML = '';
-
-  renderQ();
-}
-function showPracticeThanks(){
-
-  practiceMode = false;
-  
-  document.getElementById('v-quiz').innerHTML = `
-  <div class="rw">
-    <div class="rc">
-
-      <div class="rh">
-        <div style="font-size:60px;margin-bottom:10px">🎉</div>
-        <div class="rv" style="color:var(--green)">
-          Great Job Practicing!
-        </div>
-        <div class="rs">
-          Reviewing your mistakes is the fastest way to improve.
-        </div>
-      </div>
-
-      <div class="racts">
-        <button class="btn btn-primary btn-lg" onclick="showPage('learn')">
-          📚 Continue Learning
-        </button>
-
-        <button class="btn btn-outline" onclick="resetTest()">
-          🔄 Try Another Test
-        </button>
-
-        <button class="btn btn-ghost" onclick="showPage('dashboard')">
-          📊 Go to Dashboard
-        </button>
-      </div>
-
-    </div>
-  </div>
-  `;
-}
-function renderAnalysis(card, question_results){
-
-  const box = document.createElement('div');
-
-  let html = `<h3 style="margin-top:30px">📊 Test Analysis</h3>`;
-
-  question_results.forEach((q,i)=>{
-
-    const userAns = q.user_answer;
-    const correct = q.correct_answer;
-    const isCorrect = q.is_correct;
-
-    html += `
-      <div style="margin-top:16px;padding:14px;border-radius:10px;
-          border:1px solid ${isCorrect ? 'rgba(0,255,150,.4)' : 'rgba(255,70,70,.4)'};
-          background:${isCorrect ? 'rgba(0,255,150,.05)' : 'rgba(255,70,70,.05)'}">
-
-        <div style="font-weight:600;margin-bottom:8px">
-          Q${i+1}. ${q.question}
-        </div>
-
-        <div style="font-size:13px;margin-bottom:6px">
-          Your answer:
-          <b style="color:${isCorrect ? 'var(--green)' : 'var(--red)'}">
-          ${userAns !== null ? q.options[userAns] : 'Not answered'}
-          </b>
-        </div>
-
-        <div style="font-size:13px;margin-bottom:6px">
-          Correct answer:
-          <b style="color:var(--green)">
-          ${q.options[correct]}
-          </b>
-        </div>
-
-        <div style="font-size:13px;color:var(--text2)">
-          💡 ${q.explanation || "Explanation not available"}
-        </div>
-
-      </div>
-    `;
-  });
-
-  box.innerHTML = html;
-
-  card.appendChild(box);
-}
 /* ── DASHBOARD ── */
 async function loadDash(){
   if(!me)return;
@@ -1896,17 +1883,38 @@ async function loadDC(){
   document.getElementById('dc-t').textContent=`${data.topics?.name||'DevOps'} Daily Question`;
   document.getElementById('dc-s').textContent=`${data.difficulty?.toUpperCase()} · +50⚡ for correct answer`;
 }
+let _dcSelected=null;
 function openDC(){
   const ch=document.getElementById('dc-banner')._ch;if(!ch)return;
+  _dcSelected=null;
   const q=ch.question;
-  document.getElementById('dc-qa').innerHTML=`<div style="font-size:15px;font-weight:500;line-height:1.6;margin-bottom:20px">${q.question}</div><div class="opts">${q.options.map((o,i)=>`<button class="opt" onclick="answerDC(${i},${q.correct_answer},'${ch.id}',this.parentElement)"><span class="olbl">${String.fromCharCode(65+i)}</span>${o}</button>`).join('')}</div>`;
+  document.getElementById('dc-submit-row').style.display='none';
+  document.getElementById('btn-dc-submit').disabled=true;
+  document.getElementById('dc-qa').innerHTML='<div style="font-size:15px;font-weight:500;line-height:1.6;margin-bottom:20px">'+q.question+'</div><div class="opts">'+q.options.map((o,i)=>'<button class="opt" id="dc-opt-'+i+'" onclick="selectDC('+i+')"><span class="olbl">'+String.fromCharCode(65+i)+'</span>'+o+'</button>').join('')+'</div>';
+  document.getElementById('dc-submit-row').style.display='block';
   document.getElementById('m-dc').classList.add('open');
+}
+function selectDC(i){
+  _dcSelected=i;
+  document.querySelectorAll('#dc-qa .opt').forEach((b,n)=>b.classList.toggle('sel',n===i));
+  const btn=document.getElementById('btn-dc-submit');btn.disabled=false;btn.textContent='Submit Answer →';
+}
+async function submitDC(){
+  const ch=document.getElementById('dc-banner')._ch;if(!ch||_dcSelected===null){showToast('Please select an answer first','error');return;}
+  const q=ch.question;const sel=_dcSelected;const correct=q.correct_answer;
+  const btn=document.getElementById('btn-dc-submit');btn.disabled=true;btn.textContent='Submitting…';
+  document.querySelectorAll('#dc-qa .opt').forEach((b,i)=>{b.disabled=true;if(i===correct)b.classList.add('ok');else if(i===sel&&sel!==correct)b.classList.add('bad');});
+  const ok=sel===correct;
+  await sb.from('daily_challenge_attempts').upsert({user_id:me.id,challenge_id:ch.id,selected_option:sel,is_correct:ok},{onConflict:'user_id,challenge_id'});
+  if(ok){await sb.rpc('increment_skill_score',{p_user_id:me.id,p_amount:50});await loadProfile();}
+  document.getElementById('dc-submit-row').style.display='none';
+  document.getElementById('dc-qa').innerHTML+='<div class="exp" style="margin-top:16px">'+(ok?'✅ <strong>Correct!</strong> +50⚡ skill points earned!':'❌ <strong>Incorrect.</strong> The correct answer is highlighted above. Better luck tomorrow!')+'</div><button class="btn btn-primary btn-full" style="margin-top:16px" onclick="document.getElementById('m-dc').classList.remove('open')">Done ✓</button>';
 }
 async function answerDC(sel,correct,cid,container){
   container.querySelectorAll('.opt').forEach((b,i)=>{b.disabled=true;if(i===correct)b.classList.add('ok');else if(i===sel&&sel!==correct)b.classList.add('bad');});
   const ok=sel===correct;
   await sb.from('daily_challenge_attempts').upsert({user_id:me.id,challenge_id:cid,selected_option:sel,is_correct:ok},{onConflict:'user_id,challenge_id'});
-  setTimeout(()=>{document.getElementById('dc-qa').innerHTML+=`<div class="exp" style="margin-top:16px">${ok?'✅ <strong>Correct!</strong> +50 skill points earned!':'❌ <strong>Incorrect.</strong> Better luck tomorrow!'}</div><button class="btn btn-primary btn-full" style="margin-top:16px" onclick="document.getElementById('m-dc').classList.remove('open')">Done</button>`;},400);
+  setTimeout(()=>{document.getElementById('dc-qa').innerHTML+='<div class="exp" style="margin-top:16px">'+(ok?'✅ <strong>Correct!</strong> +50 skill points earned!':'❌ <strong>Incorrect.</strong> Better luck tomorrow!')+'</div><button class="btn btn-primary btn-full" style="margin-top:16px" onclick="document.getElementById('m-dc').classList.remove('open')">Done</button>';},400);
 }
 
 /* ── TOAST ── */
