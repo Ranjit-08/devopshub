@@ -795,24 +795,29 @@ pre{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;li
     border-radius:50%;filter:blur(60px);animation:splashOrb2 7s ease-in-out infinite"></div>
   <!-- Content -->
   <div style="position:relative;z-index:1;text-align:center;padding:32px">
-    <!-- Logo -->
-
-    <!-- Title -->
+    <!-- Logo + Title -->
+    <div id="splash-logo" style="
+      margin:0 auto 24px;
+      opacity:0;transform:scale(.6) translateY(30px);
+      transition:all .9s cubic-bezier(.16,1,.3,1);
+    ">
+      <div style="font-family:'Outfit',sans-serif;font-size:56px;font-weight:900;
+        background:linear-gradient(135deg,#ffffff 0%,#00d4ff 50%,#7b2ff7 100%);
+        -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+        background-clip:text;
+        letter-spacing:-2px;line-height:1;
+        filter:drop-shadow(0 0 40px rgba(0,212,255,.6))">DevOpsHub</div>
+    </div>
+    <!-- Subtitle -->
     <div id="splash-title" style="
-      font-family:'Outfit',sans-serif;font-size:48px;font-weight:800;
-      letter-spacing:-1px;margin-bottom:8px;
-      background:linear-gradient(135deg,#ffffff,#00d4ff,#7b2ff7);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-      opacity:0;transform:translateY(20px);
-      transition:all .8s cubic-bezier(.16,1,.3,1) .3s;
-    ">DevOpsHub</div>
-    <!-- Tagline -->
-    <div id="splash-tag" style="
-      font-family:'Outfit',sans-serif;font-size:16px;color:rgba(0,212,255,.7);
-      letter-spacing:3px;text-transform:uppercase;margin-bottom:48px;
+      font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;
+      letter-spacing:3px;margin-bottom:48px;text-transform:uppercase;
+      color:rgba(0,212,255,0.6);
       opacity:0;transform:translateY(16px);
-      transition:all .8s cubic-bezier(.16,1,.3,1) .5s;
+      transition:all .8s cubic-bezier(.16,1,.3,1) .3s;
     ">AI · Cloud · DevOps Learning</div>
+    <!-- hidden tag (no longer shown but JS references it) -->
+    <div id="splash-tag" style="display:none"></div>
     <!-- Progress bar -->
     <div id="splash-bar-wrap" style="
       width:280px;margin:0 auto;
@@ -851,13 +856,12 @@ pre{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;li
 (function(){
   // Show splash elements with animation
   setTimeout(()=>{
-    document.getElementById('splash-logo').style.opacity='1';
-    document.getElementById('splash-logo').style.transform='scale(1) translateY(0)';
-    document.getElementById('splash-title').style.opacity='1';
-    document.getElementById('splash-title').style.transform='translateY(0)';
-    document.getElementById('splash-tag').style.opacity='1';
-    document.getElementById('splash-tag').style.transform='translateY(0)';
-    document.getElementById('splash-bar-wrap').style.opacity='1';
+    var sl=document.getElementById('splash-logo');
+    if(sl){sl.style.opacity='1';sl.style.transform='scale(1) translateY(0)';}
+    var st=document.getElementById('splash-title');
+    if(st){st.style.opacity='1';st.style.transform='translateY(0)';}
+    var sb2=document.getElementById('splash-bar-wrap');
+    if(sb2)sb2.style.opacity='1';
   },100);
 
   // Particles
@@ -1354,16 +1358,14 @@ async function doAiSearch(){
     const r=await fetch(`${API}/ask-ai`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},body:JSON.stringify({question:q})});
     const{data,error}=await r.json();if(error)throw new Error(error);
     // Render markdown-lite: bold, code, lists
-    let html=data.answer
+    var raw=data.answer;
+    var html=raw
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
       .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
       .replace(/`([^`]+)`/g,'<code>$1</code>')
       .replace(/^(\d+)\.\s+/gm,'<br><b>$1.</b> ')
-      .replace(/^[-•]\s+/gm,'<br>• ')
-      .replace(/
-
-/g,'<br><br>').replace(/
-/g,'<br>');
+      .replace(/^[-•]\s+/gm,'<br>&bull; ')
+      .split('\n\n').join('<br><br>').split('\n').join('<br>');
     ans.innerHTML=html;
   }catch(e){ans.innerHTML='<span style="color:var(--red)">⚠️ '+e.message+'</span>';}
   btn.textContent='Ask AI →';btn.disabled=false;
@@ -1599,35 +1601,202 @@ async function pickLab(tid){
   }catch(e){out.innerHTML=errBox(e.message,`pickLab('${tid}')`);}
 }
 function renderLab(lab){
-  var labId='lab-'+Date.now();
-  var stepHtml=(lab.steps||[]).map(function(s){
-    var cliHtml=(s.commands||[]).map(function(cmd){
-      var safe=(cmd.command||'').replace(/\\/g,'\\\\').replace(/`/g,'\\`');
-      return '<div class="code-wrap" style="margin-bottom:10px"><div class="ch"><div class="ch-l"><div class="dots"><div class="dot" style="background:#ff5f56"></div><div class="dot" style="background:#ffbd2e"></div><div class="dot" style="background:#27c93f"></div></div><span>'+(cmd.description||'')+'</span></div><div style="display:flex;gap:8px"><span class="lang-tag">'+(cmd.language||'bash')+'</span><button class="cp-btn" onclick="doCopy(this,`'+safe+'`)">Copy</button></div></div><div class="cb"><pre>'+esc(cmd.command||'')+'</pre></div>'+(cmd.expected_output?'<div class="exp-out">Expected: '+cmd.expected_output+'</div>':'')+'</div>';
-    }).join('');
-    var consoleHtml=(s.console_steps||[]).map(function(cs){
-      var stepsHtml=(cs.steps||[]).map(function(step,i){
-        return '<div style="display:flex;gap:8px;padding:5px 0;font-size:13px;color:var(--text2);border-bottom:1px solid rgba(255,255,255,.04)"><span style="color:#a78bfa;font-family:var(--font-c);font-size:11px;min-width:20px">'+(i+1)+'.</span>'+step+'</div>';
-      }).join('');
-      return '<div style="background:rgba(123,47,247,.06);border:1px solid rgba(123,47,247,.2);border-radius:10px;padding:14px;margin-bottom:10px"><div style="font-size:12px;color:#a78bfa;font-weight:600;margin-bottom:8px">🖥️ '+(cs.description||'Console/GUI Steps')+'</div>'+stepsHtml+'</div>';
-    }).join('');
-    var hasBoth=s.commands&&s.commands.length&&s.console_steps&&s.console_steps.length;
-    var tid='labtab-'+s.step_number;
-    var tabSection=hasBoth?'<div style="display:flex;gap:6px;margin-bottom:12px"><button id="'+tid+'-cli" class="dbtn beg active" style="font-size:12px;padding:5px 14px" onclick="switchLabTab(''+tid+'','cli')">💻 CLI</button><button id="'+tid+'-con" class="dbtn" style="font-size:12px;padding:5px 14px" onclick="switchLabTab(''+tid+'','con')">🖥️ Console/GUI</button></div>':'';
-    return '<div class="lab-step"><div class="sn">'+s.step_number+'</div><div class="st">'+s.title+'</div><div class="sd">'+s.description+'</div>'+tabSection+(s.commands&&s.commands.length?'<div id="'+tid+'-cli-content">'+cliHtml+'</div>':"")+(s.console_steps&&s.console_steps.length?'<div id="'+tid+'-con-content" style="'+(hasBoth?'display:none':'')+'">'+consoleHtml+'</div>':"")+(s.notes?'<div style="font-size:12px;color:var(--yellow);margin-top:8px">💡 '+s.notes+'</div>':'')+'</div>';
-  }).join('');
-  var prereqHtml=lab.prerequisites&&lab.prerequisites.length?'<div class="cs"><div class="cs-t">📋 Prerequisites</div>'+lab.prerequisites.map(function(p){return '<div style="padding:8px 0;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border)">→ '+p+'</div>';}).join('')+'</div>':'';
-  var cleanupHtml=lab.cleanup?'<div style="background:rgba(239,71,111,.05);border:1px solid rgba(239,71,111,.2);border-radius:14px;padding:20px;margin-top:16px"><div style="font-size:12px;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">🧹 Cleanup</div><div style="font-size:13px;color:var(--text2)">'+lab.cleanup+'</div>'+(lab.cleanup_console?'<div style="font-size:13px;color:var(--text2);margin-top:8px"><strong style="color:#a78bfa">Console:</strong> '+lab.cleanup_console+'</div>':'')+'</div>':'';
-  document.getElementById('lab-out').innerHTML='<div class="lp"><h2 style="font-family:var(--font-h);font-size:24px;font-weight:800;margin-bottom:10px">'+lab.lab_title+'</h2><div class="lm" style="margin-bottom:24px"><span class="chip ch-'+(lab.difficulty?lab.difficulty.slice(0,3):'beg')+'">'+((lab.difficulty||'').toUpperCase())+'</span><span class="chip ch-t">⏱ '+lab.estimated_time+'</span></div><div class="cs"><div class="cs-t">🎯 Objective</div><p style="font-size:14px;line-height:1.7;color:var(--text2)">'+lab.objective+'</p></div>'+prereqHtml+'<div style="margin:24px 0"><div style="font-family:var(--font-c);font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px">LAB STEPS</div>'+stepHtml+'</div>'+(lab.summary?'<div class="sumbox"><div class="cs-t">📌 Summary</div><p style="font-size:14px;line-height:1.7;color:var(--text2)">'+lab.summary+'</p></div>':'')+cleanupHtml+'</div>';
+  var out = document.getElementById('lab-out');
+  out.innerHTML = '';
+  var wrap = document.createElement('div'); wrap.className = 'lp';
+
+  // Title
+  var h2 = document.createElement('h2');
+  h2.style.cssText = 'font-family:var(--font-h);font-size:24px;font-weight:800;margin-bottom:10px';
+  h2.textContent = lab.lab_title || '';
+  wrap.appendChild(h2);
+
+  // Chips
+  var lm = document.createElement('div'); lm.className = 'lm'; lm.style.marginBottom = '24px';
+  var diff = (lab.difficulty || '').slice(0,3) || 'beg';
+  lm.innerHTML = '<span class="chip ch-'+diff+'">'+(lab.difficulty||'').toUpperCase()+'</span>'
+    + '<span class="chip ch-t">⏱ '+(lab.estimated_time||'')+'</span>';
+  wrap.appendChild(lm);
+
+  // Objective
+  var objBox = document.createElement('div'); objBox.className = 'cs';
+  objBox.innerHTML = '<div class="cs-t">🎯 Objective</div>';
+  var objP = document.createElement('p'); objP.style.cssText = 'font-size:14px;line-height:1.7;color:var(--text2)';
+  objP.textContent = lab.objective || '';
+  objBox.appendChild(objP); wrap.appendChild(objBox);
+
+  // Prerequisites
+  if(lab.prerequisites && lab.prerequisites.length){
+    var preBox = document.createElement('div'); preBox.className = 'cs';
+    preBox.innerHTML = '<div class="cs-t">📋 Prerequisites</div>';
+    lab.prerequisites.forEach(function(p){
+      var d = document.createElement('div');
+      d.style.cssText = 'padding:8px 0;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border)';
+      d.textContent = '→ ' + p;
+      preBox.appendChild(d);
+    });
+    wrap.appendChild(preBox);
+  }
+
+  // Steps label
+  var stepsLabel = document.createElement('div');
+  stepsLabel.style.cssText = 'font-family:var(--font-c);font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin:24px 0 16px';
+  stepsLabel.textContent = 'LAB STEPS';
+  wrap.appendChild(stepsLabel);
+
+  // Steps
+  (lab.steps || []).forEach(function(s){
+    var stepDiv = document.createElement('div'); stepDiv.className = 'lab-step';
+
+    // Step number
+    var sn = document.createElement('div'); sn.className = 'sn';
+    sn.textContent = s.step_number; stepDiv.appendChild(sn);
+
+    // Step title
+    var st = document.createElement('div'); st.className = 'st';
+    st.textContent = s.title || ''; stepDiv.appendChild(st);
+
+    // Step desc
+    var sd = document.createElement('div'); sd.className = 'sd';
+    sd.textContent = s.description || ''; stepDiv.appendChild(sd);
+
+    var hasCli = s.commands && s.commands.length;
+    var hasConsole = s.console_steps && s.console_steps.length;
+    var hasBoth = hasCli && hasConsole;
+    var tid = 'labtab-' + s.step_number;
+
+    // Tab buttons (only if both exist)
+    if(hasBoth){
+      var tabRow = document.createElement('div');
+      tabRow.style.cssText = 'display:flex;gap:6px;margin-bottom:12px';
+
+      var cliBtn = document.createElement('button');
+      cliBtn.id = tid + '-cli';
+      cliBtn.className = 'dbtn beg active';
+      cliBtn.style.cssText = 'font-size:12px;padding:5px 14px';
+      cliBtn.textContent = '💻 CLI';
+      cliBtn.onclick = function(){ switchLabTab(tid, 'cli'); };
+      tabRow.appendChild(cliBtn);
+
+      var conBtn = document.createElement('button');
+      conBtn.id = tid + '-con';
+      conBtn.className = 'dbtn';
+      conBtn.style.cssText = 'font-size:12px;padding:5px 14px';
+      conBtn.textContent = '🖥️ Console/GUI';
+      conBtn.onclick = function(){ switchLabTab(tid, 'con'); };
+      tabRow.appendChild(conBtn);
+
+      stepDiv.appendChild(tabRow);
+    }
+
+    // CLI content
+    if(hasCli){
+      var cliDiv = document.createElement('div'); cliDiv.id = tid + '-cli-content';
+      s.commands.forEach(function(cmd){
+        var cw = document.createElement('div'); cw.className = 'code-wrap'; cw.style.marginBottom = '10px';
+        var ch = document.createElement('div'); ch.className = 'ch';
+        var chl = document.createElement('div'); chl.className = 'ch-l';
+        chl.innerHTML = '<div class="dots"><div class="dot" style="background:#ff5f56"></div><div class="dot" style="background:#ffbd2e"></div><div class="dot" style="background:#27c93f"></div></div>';
+        var descSpan = document.createElement('span'); descSpan.textContent = cmd.description || ''; chl.appendChild(descSpan);
+        ch.appendChild(chl);
+        var chRight = document.createElement('div'); chRight.style.cssText = 'display:flex;gap:8px';
+        var lt = document.createElement('span'); lt.className = 'lang-tag'; lt.textContent = cmd.language || 'bash'; chRight.appendChild(lt);
+        var cpBtn = document.createElement('button'); cpBtn.className = 'cp-btn'; cpBtn.textContent = 'Copy';
+        (function(code){ cpBtn.onclick = function(){ doCopy(cpBtn, code); }; })(cmd.command || '');
+        chRight.appendChild(cpBtn); ch.appendChild(chRight); cw.appendChild(ch);
+        var cb = document.createElement('div'); cb.className = 'cb';
+        var pre = document.createElement('pre'); pre.textContent = cmd.command || ''; cb.appendChild(pre); cw.appendChild(cb);
+        if(cmd.expected_output){
+          var eo = document.createElement('div'); eo.className = 'exp-out'; eo.textContent = 'Expected: ' + cmd.expected_output; cw.appendChild(eo);
+        }
+        cliDiv.appendChild(cw);
+      });
+      stepDiv.appendChild(cliDiv);
+    }
+
+    // Console content
+    if(hasConsole){
+      var conDiv = document.createElement('div'); conDiv.id = tid + '-con-content';
+      if(hasBoth) conDiv.style.display = 'none';
+      s.console_steps.forEach(function(cs){
+        var csBox = document.createElement('div');
+        csBox.style.cssText = 'background:rgba(123,47,247,.06);border:1px solid rgba(123,47,247,.2);border-radius:10px;padding:14px;margin-bottom:10px';
+        var csTitle = document.createElement('div');
+        csTitle.style.cssText = 'font-size:12px;color:#a78bfa;font-weight:600;margin-bottom:8px';
+        csTitle.textContent = '🖥️ ' + (cs.description || 'Console/GUI Steps');
+        csBox.appendChild(csTitle);
+        (cs.steps || []).forEach(function(step, i){
+          var row = document.createElement('div');
+          row.style.cssText = 'display:flex;gap:8px;padding:5px 0;font-size:13px;color:var(--text2);border-bottom:1px solid rgba(255,255,255,.04)';
+          var num = document.createElement('span');
+          num.style.cssText = 'color:#a78bfa;font-family:var(--font-c);font-size:11px;min-width:20px';
+          num.textContent = (i+1) + '.';
+          row.appendChild(num);
+          var txt = document.createElement('span'); txt.textContent = step; row.appendChild(txt);
+          csBox.appendChild(row);
+        });
+        conDiv.appendChild(csBox);
+      });
+      stepDiv.appendChild(conDiv);
+    }
+
+    // Notes
+    if(s.notes){
+      var notesDiv = document.createElement('div');
+      notesDiv.style.cssText = 'font-size:12px;color:var(--yellow);margin-top:8px';
+      notesDiv.textContent = '💡 ' + s.notes;
+      stepDiv.appendChild(notesDiv);
+    }
+
+    wrap.appendChild(stepDiv);
+  });
+
+  // Summary
+  if(lab.summary){
+    var sumBox = document.createElement('div'); sumBox.className = 'sumbox';
+    sumBox.innerHTML = '<div class="cs-t">📌 Summary</div>';
+    var sumP = document.createElement('p'); sumP.style.cssText = 'font-size:14px;line-height:1.7;color:var(--text2)';
+    sumP.textContent = lab.summary; sumBox.appendChild(sumP); wrap.appendChild(sumBox);
+  }
+
+  // Cleanup
+  if(lab.cleanup){
+    var clBox = document.createElement('div');
+    clBox.style.cssText = 'background:rgba(239,71,111,.05);border:1px solid rgba(239,71,111,.2);border-radius:14px;padding:20px;margin-top:16px';
+    var clTitle = document.createElement('div');
+    clTitle.style.cssText = 'font-size:12px;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px';
+    clTitle.textContent = '🧹 Cleanup'; clBox.appendChild(clTitle);
+    var clText = document.createElement('div'); clText.style.cssText = 'font-size:13px;color:var(--text2)';
+    clText.textContent = lab.cleanup; clBox.appendChild(clText);
+    if(lab.cleanup_console){
+      var clCon = document.createElement('div'); clCon.style.cssText = 'font-size:13px;color:var(--text2);margin-top:8px';
+      clCon.innerHTML = '<strong style="color:#a78bfa">Console:</strong> ';
+      clCon.appendChild(document.createTextNode(lab.cleanup_console));
+      clBox.appendChild(clCon);
+    }
+    wrap.appendChild(clBox);
+  }
+
+  out.appendChild(wrap);
 }
-function switchLabTab(tid,mode){
-  var cliC=document.getElementById(tid+'-cli-content');
-  var conC=document.getElementById(tid+'-con-content');
-  var cliB=document.getElementById(tid+'-cli');
-  var conB=document.getElementById(tid+'-con');
-  if(mode==='cli'){if(cliC)cliC.style.display='';if(conC)conC.style.display='none';if(cliB){cliB.classList.add('active','beg');}if(conB){conB.classList.remove('active');}}
-  else{if(cliC)cliC.style.display='none';if(conC)conC.style.display='';if(conB){conB.classList.add('active');}if(cliB){cliB.classList.remove('active','beg');}}
+function switchLabTab(tid, mode){
+  var cliC = document.getElementById(tid+'-cli-content');
+  var conC = document.getElementById(tid+'-con-content');
+  var cliB = document.getElementById(tid+'-cli');
+  var conB = document.getElementById(tid+'-con');
+  if(mode === 'cli'){
+    if(cliC) cliC.style.display = '';
+    if(conC) conC.style.display = 'none';
+    if(cliB){ cliB.classList.add('active','beg'); }
+    if(conB){ conB.classList.remove('active'); }
+  } else {
+    if(cliC) cliC.style.display = 'none';
+    if(conC) conC.style.display = '';
+    if(conB){ conB.classList.add('active'); }
+    if(cliB){ cliB.classList.remove('active','beg'); }
+  }
 }
+
 
 
 /* ── TEST ── */
@@ -1847,8 +2016,9 @@ function renderResult(r){
   // Action buttons
   var acts=document.createElement('div');acts.className='racts';acts.style.marginTop='28px';
   acts.innerHTML='<button class="btn btn-primary btn-lg" onclick="resetTest()">🔄 Take Another Test</button>'
-    +'<button class="btn btn-outline" onclick="showPage('learn')">📚 Study More</button>'
-    +'<button class="btn btn-ghost" onclick="showPage('dashboard')">📊 Dashboard</button>';
+    +'<button class="btn btn-outline" onclick="practiceWrong()">🎯 Practice Wrong Questions</button>'
+    +'<button class="btn btn-outline" onclick="showPage(\'learn\')">📚 Study More</button>'
+    +'<button class="btn btn-ghost" onclick="showPage(\'dashboard\')">📊 Dashboard</button>';
   card.appendChild(acts);
 
   var vq=document.getElementById('v-quiz');vq.innerHTML='';vq.appendChild(wrap);
@@ -1908,13 +2078,25 @@ async function submitDC(){
   await sb.from('daily_challenge_attempts').upsert({user_id:me.id,challenge_id:ch.id,selected_option:sel,is_correct:ok},{onConflict:'user_id,challenge_id'});
   if(ok){await sb.rpc('increment_skill_score',{p_user_id:me.id,p_amount:50});await loadProfile();}
   document.getElementById('dc-submit-row').style.display='none';
-  document.getElementById('dc-qa').innerHTML+='<div class="exp" style="margin-top:16px">'+(ok?'✅ <strong>Correct!</strong> +50⚡ skill points earned!':'❌ <strong>Incorrect.</strong> The correct answer is highlighted above. Better luck tomorrow!')+'</div><button class="btn btn-primary btn-full" style="margin-top:16px" onclick="document.getElementById('m-dc').classList.remove('open')">Done ✓</button>';
+  var dcExp=document.createElement('div');dcExp.className='exp';dcExp.style.marginTop='16px';
+  dcExp.innerHTML=ok?'✅ <strong>Correct!</strong> +50⚡ skill points earned!':'❌ <strong>Incorrect.</strong> The correct answer is highlighted above. Better luck tomorrow!';
+  var dcDone=document.createElement('button');dcDone.className='btn btn-primary btn-full';dcDone.style.marginTop='16px';dcDone.textContent='Done ✓';
+  dcDone.onclick=function(){document.getElementById('m-dc').classList.remove('open');};
+  document.getElementById('dc-qa').appendChild(dcExp);
+  document.getElementById('dc-qa').appendChild(dcDone);
 }
 async function answerDC(sel,correct,cid,container){
   container.querySelectorAll('.opt').forEach((b,i)=>{b.disabled=true;if(i===correct)b.classList.add('ok');else if(i===sel&&sel!==correct)b.classList.add('bad');});
   const ok=sel===correct;
   await sb.from('daily_challenge_attempts').upsert({user_id:me.id,challenge_id:cid,selected_option:sel,is_correct:ok},{onConflict:'user_id,challenge_id'});
-  setTimeout(()=>{document.getElementById('dc-qa').innerHTML+='<div class="exp" style="margin-top:16px">'+(ok?'✅ <strong>Correct!</strong> +50 skill points earned!':'❌ <strong>Incorrect.</strong> Better luck tomorrow!')+'</div><button class="btn btn-primary btn-full" style="margin-top:16px" onclick="document.getElementById('m-dc').classList.remove('open')">Done</button>';},400);
+  setTimeout(()=>{
+    var aExp=document.createElement('div');aExp.className='exp';aExp.style.marginTop='16px';
+    aExp.innerHTML=ok?'✅ <strong>Correct!</strong> +50 skill points earned!':'❌ <strong>Incorrect.</strong> Better luck tomorrow!';
+    var aDone=document.createElement('button');aDone.className='btn btn-primary btn-full';aDone.style.marginTop='16px';aDone.textContent='Done';
+    aDone.onclick=function(){document.getElementById('m-dc').classList.remove('open');};
+    document.getElementById('dc-qa').appendChild(aExp);
+    document.getElementById('dc-qa').appendChild(aDone);
+  },400);
 }
 
 /* ── TOAST ── */
